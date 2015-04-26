@@ -25,7 +25,7 @@ require('base')
 ptb = require('data')
 
 -- Train 1 day and gives 82 perplexity.
---[[
+
 local params = {batch_size=20,
                 seq_length=35,
                 layers=2,
@@ -40,9 +40,10 @@ local params = {batch_size=20,
                 max_grad_norm=10,
                 modelFileName='GPU_model_1.lstm'
                 }
-               ]]--
+--              -- ]]--
 
 -- Trains 1h and gives test 115 perplexity.
+--[[
 local params = {batch_size=20,
                 seq_length=20,
                 layers=2,
@@ -56,7 +57,7 @@ local params = {batch_size=20,
                 max_max_epoch=13,
                 max_grad_norm=5,
                 modelFileName='GPU_model_1.lstm'
-              }
+              } --]]
 
 function transfer_data(x)
   return x:cuda()
@@ -265,6 +266,8 @@ while epoch < params.max_max_epoch do
   end
   if step % epoch_size == 0 then
     run_valid()
+      print("Saving model...")
+      torch.save(params.modelFileName, model)
     if epoch > params.max_epoch then
       params.lr = params.lr / params.decay
     end
@@ -273,9 +276,9 @@ while epoch < params.max_max_epoch do
     cutorch.synchronize()
     collectgarbage()
   end
-  print("Saving model...")
-  torch.save(params.modelFileName, model)
 end
+print("Saving model...")
+torch.save('final_baseline_model', model)
 run_test()
 print("Training is over.")
 --end
