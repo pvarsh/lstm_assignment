@@ -11,6 +11,7 @@ local file = require('pl.file')
 
 local ptb_path = "./data/"
 
+local tinyfn  = ptb_path .. "tiny.txt"
 local trainfn = ptb_path .. "ptb.train.txt"
 local testfn  = ptb_path .. "ptb.test.txt"
 local validfn = ptb_path .. "ptb.valid.txt"
@@ -21,6 +22,7 @@ local validfn = ptb_path .. "ptb.char.valid.txt"
 
 local vocab_idx = 0
 local vocab_map = {}
+local vocab_inv_map = {}
 
 -- Stacks replicated, shifted versions of x_inp
 -- into a single matrix of size x_inp:size(1) x batch_size.
@@ -46,6 +48,7 @@ local function load_data(fname)
       if vocab_map[data[i]] == nil then
         vocab_idx = vocab_idx + 1
         vocab_map[data[i]] = vocab_idx
+        vocab_inv_map[vocab_idx] = data[i]
       end
       x[i] = vocab_map[data[i]]
     end
@@ -74,10 +77,11 @@ local function validdataset(batch_size)
    return x
 end
 
-return {traindataset = traindataset,
-        testdataset  = testdataset,
-        validdataset = validdataset,
-        vocab_map    = vocab_map
+return {traindataset  = traindataset,
+        testdataset   = testdataset,
+        validdataset  = validdataset,
+        vocab_map     = vocab_map,
+        vocab_inv_map = vocab_inv_map
        }
 
 -- x = traindataset(5)
