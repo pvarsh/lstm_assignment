@@ -8,7 +8,9 @@
 
 require('nngraph')
 require('base')
+local stringx = require('pl.stringx')
 ptb = require('data')
+
 
 -- Train 1 day and gives 82 perplexity.
 --[[
@@ -92,7 +94,7 @@ function create_network()
   local pred             = nn.LogSoftMax()(h2y(dropped))
   local err              = nn.ClassNLLCriterion()({pred, y})
   local module           = nn.gModule({x, y, prev_s},
-                                      {err, nn.Identity()(next_s)})
+                                      {err, nn.Identity()(next_s), pred})
   module:getParameters():uniform(-params.init_weight, params.init_weight)
   return transfer_data(module)
 end
@@ -108,7 +110,7 @@ function setup()
     core_network = create_network()
   end
   print("Network loaded or created")
-  paramx, paramdx = core_network:getParameters()
+  paramx, paramdx = core_network:getParameters() -- why not local?
   model.s = {} -- model is global
   model.ds = {}
   model.start_s = {}
@@ -157,11 +159,13 @@ function fp(state)
     reset_state(state)
   end
   for i = 1, params.seq_length do
+    -- print(i)
     local x = state.data[state.pos]
     local y = state.data[state.pos + 1]
     local s = model.s[i - 1]
+    -- print(x, y, s)
     -- Why does forward return both output (model.s) and error?
-    model.err[i], model.s[i] = unpack(model.rnns[i]:forward({x, y, s}))
+    model.err[i], model.s[i], pred1 = unpack(model.rnns[i]:forward({x, y, s}))
     state.pos = state.pos + 1
   end
   g_replace_table(model.start_s, model.s[params.seq_length])
@@ -177,8 +181,9 @@ function bp(state)
     local y = state.data[state.pos + 1]
     local s = model.s[i - 1]
     local derr = transfer_data(torch.ones(1))
+    local dpred = transfer_data(torch.zeros(params.batch_size, params.vocab_size))
     local tmp = model.rnns[i]:backward({x, y, s},
-                                       {derr, model.ds})[3]
+                                       {derr, model.ds, dpred})[3]
     g_replace_table(model.ds, tmp)
     if params.gpu then
       cutorch.synchronize()
@@ -215,7 +220,7 @@ function run_test()
     local x = state_test.data[i]
     local y = state_test.data[i + 1]
     local s = model.s[i - 1]
-    perp_tmp, model.s[1] = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
+    perp_tmp, model.s[1], pred1 = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
     perp = perp + perp_tmp[1]
     g_replace_table(model.s[0], model.s[1])
   end
@@ -223,6 +228,24 @@ function run_test()
   g_enable_dropout(model.rnns)
 end
 
+function run_my_test()
+  reset_state(state1)
+  g_disable_dropout(model.rnns)
+  local perp = 0
+  local len = state1.data:size(1)
+  g_replace_table(model.s[0], model.start_s)
+  for i = 1, (len - 1) do
+    local x = state1.data[i]
+    local y = state1.data[i + 1]
+    local s = model.s[i - 1]
+    perp_tmp, model.s[1], pred1 = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
+    -- print("model.s[1][4] = ", model.s[1][4])
+    perp = perp + perp_tmp[1]
+    g_replace_table(model.s[0], model.s[1])
+  end
+  print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
+  g_enable_dropout(model.rnns)
+end
 
 function main()
   if params.gpu then
@@ -366,13 +389,45 @@ end
 -- params.batch_size = 2
 -- state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
 
+-- local params = {batch_size=20,
+--                 seq_length=20,
+--                 layers=2,
+--                 decay=2,
+--                 rnn_size=200,
+--                 dropout=0,
+--                 init_weight=0.1,
+--                 lr=1,
+--                 vocab_size=10000,
+--                 max_epoch=4,
+--                 max_max_epoch=13,
+--                 max_grad_norm=5}
 
--- main()
+main()
 
-for key, val in pairs(params) do
-  print(key, val)
-end
+-- Playing with sequences
+-- print("Command Line Parameters")
+-- for key, val in pairs(params) do
+--   print(key, val)
+-- end
 
-setup()
+-- ptb.traindataset(params.batch_size)
 
+-- setup()
+-- test_str = "the president issued an executive order"
+-- data = stringx.replace(test_str, '\n', '<eos>')
+-- data = stringx.split(data)
+-- x = torch.zeros(#data)
+-- for i = 1,#data do
+--   x[i] = ptb.vocab_map[data[i]]
+--   x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
+--   print(data[i],x[{i,1}])
+-- end
+
+-- -- ptb.testdataset(params.batch_size)
+
+-- state1 = {}
+-- state1.pos = 1
+-- state1.data = x
+
+-- run_my_test()
 
