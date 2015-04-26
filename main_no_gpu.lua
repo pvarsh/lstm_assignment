@@ -43,7 +43,7 @@ local params = {batch_size=20,
 --                 max_grad_norm=5}
 
 function transfer_data(x)
-  if params.gpu then
+  if params.use_gpu then
     return x:cuda()
   else
     return x
@@ -185,7 +185,7 @@ function bp(state)
     local tmp = model.rnns[i]:backward({x, y, s},
                                        {derr, model.ds, dpred})[3]
     g_replace_table(model.ds, tmp)
-    if params.gpu then
+    if params.use_gpu then
       cutorch.synchronize()
     end
   end
@@ -254,7 +254,7 @@ function run_my_test()
 end
 
 function main()
-  if params.gpu then
+  if params.use_gpu then
     g_init_gpu(arg)
   end
   -- Transfer data to GPU
@@ -306,7 +306,7 @@ function main()
       end
     end
     if step % 33 == 0 then
-      if params.gpu then
+      if params.use_gpu then
         cutorch.synchronize()
       end
       collectgarbage()
@@ -342,7 +342,7 @@ if not params then
    cmd:option('-max_epoch', 4, 'Maximum number of training epochs')
    cmd:option('-max_max_epoch', 13, 'TODO')
    cmd:option('-max_grad_norm', 5, 'Gradient normalization parameter')
-   cmd:option('-gpu', false, 'Whether to run on GPU')
+   cmd:option('-use_gpu', false, 'Whether to run on GPU')
    cmd:option('-model_save_fname', 'model.lstm', 'Save model as file name')
    cmd:option('-model_load_fname', 'model.lstm', 'Model file to load')
    cmd:option('-load_model', false, 'Whether to load model')
@@ -371,7 +371,7 @@ if not params then
    -- opt.nBatches = math.floor(opt.nTrainDocs / opt.minibatchSize)
 end
 
-if params.gpu then
+if params.use_gpu then
   print("Loading GPU dependencies")
   ok,cunn = pcall(require, 'fbcunn')
   if not ok then
