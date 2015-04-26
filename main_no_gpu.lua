@@ -256,6 +256,7 @@ end
 function main()
   if params.use_gpu then
     print("arg", arg)
+    for key, val in pairs(arg) do print(key,val) end
     g_init_gpu(arg)
   end
   -- Transfer data to GPU
