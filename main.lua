@@ -85,9 +85,9 @@ function create_network()
   local y                = nn.Identity()()
   local prev_s           = nn.Identity()()
   local i                = {[0] = LookupTable(params.vocab_size,
-                                                    params.rnn_size)(x)}
+                                              params.rnn_size)(x)}
   local next_s           = {}
-  local split         = {prev_s:split(2 * params.layers)}
+  local split            = {prev_s:split(2 * params.layers)}
   for layer_idx = 1, params.layers do
     local prev_c         = split[2 * layer_idx - 1]
     local prev_h         = split[2 * layer_idx]
@@ -111,18 +111,21 @@ function setup()
   print("Creating a RNN LSTM network.")
   local core_network = create_network()
   paramx, paramdx = core_network:getParameters()
-  model.s = {}
+  model.s = {} -- model is global
   model.ds = {}
   model.start_s = {}
   for j = 0, params.seq_length do
     model.s[j] = {}
     for d = 1, 2 * params.layers do
-      model.s[j][d] = transfer_data(torch.zeros(params.batch_size, params.rnn_size))
+      model.s[j][d] = transfer_data(torch.zeros(params.batch_size,
+                                                params.rnn_size))
     end
   end
   for d = 1, 2 * params.layers do
-    model.start_s[d] = transfer_data(torch.zeros(params.batch_size, params.rnn_size))
-    model.ds[d] = transfer_data(torch.zeros(params.batch_size, params.rnn_size))
+    model.start_s[d] = transfer_data(torch.zeros(params.batch_size,
+                                                 params.rnn_size))
+    model.ds[d] = transfer_data(torch.zeros(params.batch_size,
+                                            params.rnn_size))
   end
   model.core_network = core_network
   model.rnns = g_cloneManyTimes(core_network, params.seq_length)
@@ -154,6 +157,7 @@ function fp(state)
     local x = state.data[state.pos]
     local y = state.data[state.pos + 1]
     local s = model.s[i - 1]
+    -- Why does forward return both output (model.s) and error?
     model.err[i], model.s[i] = unpack(model.rnns[i]:forward({x, y, s}))
     state.pos = state.pos + 1
   end
@@ -217,13 +221,13 @@ end
 --function main()
 g_init_gpu(arg)
 state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
-state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
+state_valid = {data=transfer_data(ptb.validdataset(params.batch_size))}
+state_test  = {data=transfer_data(ptb.testdataset(params.batch_size))}
 print("Network parameters:")
 print(params)
 local states = {state_train, state_valid, state_test}
 for _, state in pairs(states) do
- reset_state(state)
+  reset_state(state)
 end
 setup()
 step = 0
@@ -236,35 +240,35 @@ words_per_step = params.seq_length * params.batch_size
 epoch_size = torch.floor(state_train.data:size(1) / params.seq_length)
 --perps
 while epoch < params.max_max_epoch do
- perp = fp(state_train)
- if perps == nil then
-   perps = torch.zeros(epoch_size):add(perp)
- end
- perps[step % epoch_size + 1] = perp
- step = step + 1
- bp(state_train)
- total_cases = total_cases + params.seq_length * params.batch_size
- epoch = step / epoch_size
- if step % torch.round(epoch_size / 10) == 10 then
-   wps = torch.floor(total_cases / torch.toc(start_time))
-   since_beginning = g_d(torch.toc(beginning_time) / 60)
-   print('epoch = ' .. g_f3(epoch) ..
-         ', train perp. = ' .. g_f3(torch.exp(perps:mean())) ..
-         ', wps = ' .. wps ..
-         ', dw:norm() = ' .. g_f3(model.norm_dw) ..
-         ', lr = ' ..  g_f3(params.lr) ..
-         ', since beginning = ' .. since_beginning .. ' mins.')
- end
- if step % epoch_size == 0 then
-   run_valid()
-   if epoch > params.max_epoch then
-       params.lr = params.lr / params.decay
-   end
- end
- if step % 33 == 0 then
-   cutorch.synchronize()
-   collectgarbage()
- end
+  perp = fp(state_train)
+  if perps == nil then
+    perps = torch.zeros(epoch_size):add(perp)
+  end
+  perps[step % epoch_size + 1] = perp
+  step = step + 1
+  bp(state_train)
+  total_cases = total_cases + params.seq_length * params.batch_size
+  epoch = step / epoch_size
+  if step % torch.round(epoch_size / 10) == 10 then
+    wps = torch.floor(total_cases / torch.toc(start_time))
+    since_beginning = g_d(torch.toc(beginning_time) / 60)
+    print('epoch = ' .. g_f3(epoch) ..
+          ', train perp. = ' .. g_f3(torch.exp(perps:mean())) ..
+          ', wps = ' .. wps ..
+          ', dw:norm() = ' .. g_f3(model.norm_dw) ..
+          ', lr = ' ..  g_f3(params.lr) ..
+          ', since beginning = ' .. since_beginning .. ' mins.')
+  end
+  if step % epoch_size == 0 then
+    run_valid()
+    if epoch > params.max_epoch then
+      params.lr = params.lr / params.decay
+    end
+  end
+  if step % 33 == 0 then
+    cutorch.synchronize()
+    collectgarbage()
+  end
 end
 run_test()
 print("Training is over.")
