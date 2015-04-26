@@ -99,7 +99,15 @@ end
 
 function setup()
   print("Creating a RNN LSTM network.")
-  local core_network = create_network()
+  local core_network = {}
+  if params.load_model then
+    print("Loading")
+    core_network = torch.load(params.model_load_fname).core_network
+  else
+    print("Creating")
+    core_network = create_network()
+  end
+  print("Network loaded or created")
   paramx, paramdx = core_network:getParameters()
   model.s = {} -- model is global
   model.ds = {}
@@ -122,6 +130,11 @@ function setup()
   model.norm_dw = 0
   model.err = transfer_data(torch.zeros(params.seq_length))
 end
+
+-- function load_model()
+--   local l_model = torch.load(params.load_model_file)
+--   model.core_network = l_model.core_network
+-- end
 
 function reset_state(state)
   state.pos = 1
@@ -211,7 +224,6 @@ function run_test()
 end
 
 
-
 function main()
   if params.gpu then
     g_init_gpu(arg)
@@ -258,6 +270,8 @@ function main()
     end
     if step % epoch_size == 0 then
       run_valid()
+      print("Saving model...")
+      torch.save(params.model_save_fname, model)
       if epoch > params.max_epoch then
         params.lr = params.lr / params.decay
       end
@@ -271,7 +285,7 @@ function main()
   end
   
   print("Saving model...")
-  torch.save(params.modelFileName, model)
+  torch.save('final_model.lstm', model)
 
   run_test()
   print("Training is over.")
@@ -300,7 +314,9 @@ if not params then
    cmd:option('-max_max_epoch', 13, 'TODO')
    cmd:option('-max_grad_norm', 5, 'Gradient normalization parameter')
    cmd:option('-gpu', false, 'Whether to run on GPU')
-   cmd:option('-modelFileName', 'model.lstm', 'Save model as file name')
+   cmd:option('-model_save_fname', 'model.lstm', 'Save model as file name')
+   cmd:option('-model_load_fname', 'model.lstm', 'Model file to load')
+   cmd:option('-load_model', false, 'Whether to load model')
    -- cmd:option('-pooling', 'max', '[max | logexp] pooling')
    -- cmd:option('-beta', 20, 'LogExp pooling beta parameter')
    -- cmd:option('-inputDim', 50, 'word vector dimension: [50 | 100 | 200 | 300]')
@@ -326,8 +342,6 @@ if not params then
    -- opt.nBatches = math.floor(opt.nTrainDocs / opt.minibatchSize)
 end
 
-print(params)
-
 if params.gpu then
   print("Loading GPU dependencies")
   ok,cunn = pcall(require, 'fbcunn')
@@ -349,8 +363,16 @@ else
   LookupTable = nn.LookupTable
 end
 
-params.batch_size = 2
-state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+-- params.batch_size = 2
+-- state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
 
 
 -- main()
+
+for key, val in pairs(params) do
+  print(key, val)
+end
+
+setup()
+
+
