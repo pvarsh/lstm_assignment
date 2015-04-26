@@ -234,17 +234,23 @@ function run_my_test()
   local perp = 0
   local len = state1.data:size(1)
   g_replace_table(model.s[0], model.start_s)
+  predictions = torch.zeros(len)
   for i = 1, (len - 1) do
     local x = state1.data[i]
     local y = state1.data[i + 1]
     local s = model.s[i - 1]
     perp_tmp, model.s[1], pred1 = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
+    -- predictions[i+1] = torch.multinomial(pred1[{ 1,{} }], 1)
     -- print("model.s[1][4] = ", model.s[1][4])
     perp = perp + perp_tmp[1]
     g_replace_table(model.s[0], model.s[1])
+    pred2 = pred1[{ 1,{} }]
+    pred2:div(pred2:sum())
+    predictions[i+1] = torch.multinomial(pred2, 1)
   end
   print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
+  return predictions
 end
 
 function main()
@@ -401,33 +407,36 @@ end
 --                 max_epoch=4,
 --                 max_max_epoch=13,
 --                 max_grad_norm=5}
+if params.load_model then
+  -- Playing with sequences
+  print("Command Line Parameters")
+  for key, val in pairs(params) do
+    print(key, val)
+  end
 
-main()
+  ptb.traindataset(params.batch_size)
 
--- Playing with sequences
--- print("Command Line Parameters")
--- for key, val in pairs(params) do
---   print(key, val)
--- end
+  setup()
+  test_str = "the president issued an executive order"
+  data = stringx.replace(test_str, '\n', '<eos>')
+  data = stringx.split(data)
+  x = torch.zeros(#data)
+  for i = 1,#data do
+    x[i] = ptb.vocab_map[data[i]]
+    x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
+    print(data[i],x[{i,1}])
+  end
 
--- ptb.traindataset(params.batch_size)
+  -- ptb.testdataset(params.batch_size)
 
--- setup()
--- test_str = "the president issued an executive order"
--- data = stringx.replace(test_str, '\n', '<eos>')
--- data = stringx.split(data)
--- x = torch.zeros(#data)
--- for i = 1,#data do
---   x[i] = ptb.vocab_map[data[i]]
---   x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
---   print(data[i],x[{i,1}])
--- end
+  state1 = {}
+  state1.pos = 1
+  state1.data = x
 
--- -- ptb.testdataset(params.batch_size)
+  predictions = run_my_test()
+else
+  main()
+end
 
--- state1 = {}
--- state1.pos = 1
--- state1.data = x
 
--- run_my_test()
 
