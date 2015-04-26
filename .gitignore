@@ -1,1 +1,6 @@
 *.mat
+*.swp
+*.log
+*.aux
+*.bbl
+nips2014.tex
