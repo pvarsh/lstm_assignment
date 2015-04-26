@@ -255,9 +255,9 @@ end
 
 function main()
   if params.use_gpu then
-    print("arg", arg)
-    for key, val in pairs(arg) do print(key,val) end
-    g_init_gpu(arg)
+    -- print("arg", arg)
+    -- for key, val in pairs(arg) do print(key,val) end
+    g_init_gpu({[1] = 1}) -- was arg
   end
   -- Transfer data to GPU
   state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
