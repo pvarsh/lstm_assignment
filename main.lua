@@ -37,7 +37,9 @@ local params = {batch_size=20,
                 vocab_size=10000,
                 max_epoch=14,
                 max_max_epoch=55,
-                max_grad_norm=10}
+                max_grad_norm=10,
+                modelFileName='GPU_model_1.lstm'
+                }
                ]]--
 
 -- Trains 1h and gives test 115 perplexity.
@@ -52,7 +54,9 @@ local params = {batch_size=20,
                 vocab_size=10000,
                 max_epoch=4,
                 max_max_epoch=13,
-                max_grad_norm=5}
+                max_grad_norm=5,
+                modelFileName='GPU_model_1.lstm'
+              }
 
 function transfer_data(x)
   return x:cuda()
@@ -269,6 +273,8 @@ while epoch < params.max_max_epoch do
     cutorch.synchronize()
     collectgarbage()
   end
+  print("Saving model...")
+  torch.save(params.modelFileName, model)
 end
 run_test()
 print("Training is over.")
