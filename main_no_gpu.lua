@@ -269,6 +269,10 @@ function main()
       collectgarbage()
     end
   end
+  
+  print("Saving model...")
+  torch.save(params.modelFileName, model)
+
   run_test()
   print("Training is over.")
 end -- main
@@ -296,6 +300,7 @@ if not params then
    cmd:option('-max_max_epoch', 13, 'TODO')
    cmd:option('-max_grad_norm', 5, 'Gradient normalization parameter')
    cmd:option('-gpu', false, 'Whether to run on GPU')
+   cmd:option('-modelFileName', 'model.lstm', 'Save model as file name')
    -- cmd:option('-pooling', 'max', '[max | logexp] pooling')
    -- cmd:option('-beta', 20, 'LogExp pooling beta parameter')
    -- cmd:option('-inputDim', 50, 'word vector dimension: [50 | 100 | 200 | 300]')
