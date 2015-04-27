@@ -42,6 +42,7 @@ if not opt then
    cmd:option('-load_name', 'model.net', 'Model file name to load')
    cmd:option('-no_train', false, 'No train, play')
    cmd:option('-char', false, 'Character-level model')
+   cmd:option('-seq_length', 20, 'Sequence length')
    cmd:text()
    opt = cmd:parse(arg or {})
 end
@@ -79,10 +80,11 @@ local params = {batch_size=20,
                 }
 
 
+params.seq_length = opt.seq_length
+
 if opt.char then
   params.vocab_size = 50
   params.char_mult = 5.6
-  params.seq_length = 50
 end
 
 function transfer_data(x)
@@ -405,7 +407,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     -- local line = "the president of"
     print("Line: ", line)
 
-    predict_len = 20
+    predict_len = params.seq_length
 
     ---- Parse input
     local data = stringx.replace(line, '\n', '<eos>')
