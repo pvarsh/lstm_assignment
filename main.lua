@@ -369,7 +369,7 @@ function assignment_output()
                                                     y,
                                                     model.s[0]})
     g_enable_dropout(model.rnns)
-
+    print("log_prob", log_prob)
     -- Convert predictoins to probabilities and print
     prob_slice = log_prob[{ 1,{} }]:float()
     prob_slice:exp()
