@@ -350,19 +350,12 @@ end
 
 function assignment_output()
   print("OK GO")
-
   ok, line = readline()
   state_in = {}
   while ok do
     -- Prepare input
     local input = ptb.vocab_map[line]
-    print("type input: ", type(input))
-    print("type torch.ones()", type(torch.ones(5)))
-    print("torch.ones", torch.ones(5))
-    -- print("buggy line", torch.ones(params.batch_size):mul(input))
-    local x = torch.ones(5)
-    x = transfer_data(x)
-    x:mul(input)
+    x = torch.ones(params.batch_size):mul(input)
     state_in.data = transfer_data(x)
 
     -- Prepare model and get predictions
@@ -449,8 +442,12 @@ if not opt.no_train then
   print("Training is over.")
 -- end -- end of main() 
 elseif opt.submission then
-  ----------------------- SUBMISSION PREDICTIONS
+     ----------------------- SUBMISSION PREDICTIONS
+  -- Load vocabulary map
   ptb.traindataset(params.batch_size)
+  -- Load model
+  model = torch.load(opt.load_name)
+  -- Run assignment
   assignment_output()
 
 else ----------------------- PREDICTIONS FROM USER INPUT
