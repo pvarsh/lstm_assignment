@@ -351,22 +351,20 @@ end
 function assignment_output()
   print("OK GO")
   ok, line = readline()
-  tt = {['t'] = 5}
   state_in = {}
   while ok do
     -- Prepare input
     local input = ptb.vocab_map[line]
-    input = input:
-             resize(input:size(1), 1):
-             expand(input:size(1), params.batch_size)
+    local x = torch.ones(params.batch_size):mul(input)
     state_in.data = transfer_data(input)
 
     -- Prepare model and get predictions
     g_disable_dropout(model.rnns)
     reset_state(state_in)
 
-    perp, next_s, log_prob = model.rnns[1]:forward({input,
-                                                    input,
+    -- Since we are not interested in error, we can forward prop without y
+    perp, next_s, log_prob = model.rnns[1]:forward({x,
+                                                    x,
                                                     model.s[0]})
     g_enable_dropout(model.rnns)
 
