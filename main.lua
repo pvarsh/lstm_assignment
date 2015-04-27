@@ -247,8 +247,8 @@ function predict()
   local len = state_in.data:size(1)
   g_replace_table(model.s[0], model.start_s)
   for i = 1, (len - 1) do
-    local x = state_test.data[i]
-    local y = state_test.data[1] -- y doesn't matter for now
+    local x = state_in.data[i]
+    local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
     local pred
     perp_tmp, model.s[i], pred = unpack(model.rnns[i]:forward({x, y, model.s[i-1]}))
