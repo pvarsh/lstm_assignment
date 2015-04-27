@@ -457,6 +457,13 @@ end
 --                 max_epoch=4,
 --                 max_max_epoch=13,
 --                 max_grad_norm=5}
+
+if params.use_gpu then
+  -- print("arg", arg)
+  -- for key, val in pairs(arg) do print(key,val) end
+  g_init_gpu({[1] = 1}) -- was arg
+end
+
 if params.load_model then
   -- Playing with sequences
   print("Command Line Parameters")
