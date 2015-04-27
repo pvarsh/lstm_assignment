@@ -266,7 +266,7 @@ function predict()
   print("Starting input forward loop")
   for i = 1,len do
     local x = state_in.data[i]
-    local y = state_in.data[1] -- y doesn't matter for now
+    local y = state_in.data[1] -- y doesn't matter here
     local s = model.s[i - 1]
     local pred
     print("x", x[1])
@@ -344,7 +344,7 @@ function query_sentences()
              expand(data_vec:size(1), params.batch_size)
   -- Create global state
   state_in = {}
-  state_in.data = data_vec
+  state_in.data = transfer_data(data_vec)
   -- Run generator
   predictions = predict()
   -- Translate results using inverse vocab map
