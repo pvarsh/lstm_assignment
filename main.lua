@@ -339,7 +339,7 @@ function query_sentences()
   predictions = predict()
   -- Translate results using inverse vocab map
   pred_table = {}
-  for i=1,predict_len do
+  for i=1,#predictions do
     print(ptb.vocab_inv_map[predictions[i]])
   end
 end
