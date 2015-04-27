@@ -273,7 +273,16 @@ function predict()
   return predictions
 end
 
-
+function readline()
+  local line = io.read("*line")
+  if string.len(line) == 0 then
+    print("returning false")
+    return false, line
+  else
+    print("returning true")
+    return true, line
+  end
+end
 
 ------------------------------------------------------------------------
 -- main()
