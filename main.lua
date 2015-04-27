@@ -243,6 +243,7 @@ end
 g_init_gpu(arg)
 
 if not opt.no_train then
+  ----------------------- TRAINING -------------------------
   state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
   state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
   state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
@@ -297,11 +298,27 @@ if not opt.no_train then
   end
   run_test()
   print("Training is over.")
--- end
-else
+-- end -- end of main() 
+else ----------------------- PREDICTIONS FROM USER INPUT
   print("Not training, just playing")
   if opt.load then
-    print("Loading model")
+    print("Loading model...")
     model = torch.load(opt.load)
+
+    ---- User input (TODO)
+    input = "the president of"
+    print("Input: ", input)
+
+    ---- Parse input
+    data = stringx.replace(line, '\n', '<eos>')
+    data = stringx.split(data)
+    state_in = {}
+    state_in.data = transfer_data(torch.zeros(params.seq_length)) --TODO: does seq_length make sense?
+    for i=1,#data do
+      if vocab_map[data[i]] == nil then
+        data[i] = '<unk>'
+      end
+      state_in.data[i] = vocab_map[data[i]]
+    end
   end
 end
