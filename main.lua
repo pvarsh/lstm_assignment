@@ -256,12 +256,12 @@ end
 function predict()
   -- reset_state(state_in)
   g_disable_dropout(model.rnns)
-  -- local perp = 0
-  local predictions = transfer_data(torch.zeros(predict_len))
-  local _
-
-  -- loop through input to set states
+    -- loop through input to set states
   local input_len = state_in.data:size(1)
+  local predictions = transfer_data(
+                          torch.zeros(predict_len _ input_len)
+                          )
+  local _
   g_replace_table(model.s[0], model.start_s)
   print("Starting input forward loop")
   for i = 1,input_len do
@@ -284,7 +284,7 @@ function predict()
   end
   local x = state_in.data[input_len]
   print("Starting prediction loop")
-  for i = input_len+1, predict_len + input_len -1 do
+  for i = input_len+1, predict_len + input_len - 1 do
     local x = torch.ones(params.batch_size):mul(predictions[i])
     -- print("x", x[1])
     local y = state_in.data[1] -- y doesn't matter here
