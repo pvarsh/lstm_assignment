@@ -281,7 +281,9 @@ function predict()
     predictions[i+1] = pred_index
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
+
   local x = state_in.data[input_len]
+
   print("Starting prediction loop")
   for i = input_len+1, predict_len + input_len - 1 do
     local x = torch.ones(params.batch_size):mul(predictions[i])
@@ -355,13 +357,12 @@ function assignment_output()
   while ok do
     -- Prepare input
     local input = ptb.vocab_map[line]
-    x = torch.ones(params.batch_size):mul(input)
-    state_in.data = transfer_data(x)
+    local x = transfer_data(torch.ones(params.batch_size, 1):mul(input))
+    state_in.data = x
 
     -- Prepare model and get predictions
     g_disable_dropout(model.rnns)
     reset_state(state_in)
-
     -- Since we are not interested in error, we can forward prop without y
     perp, next_s, log_prob = model.rnns[1]:forward({x,
                                                     x,
