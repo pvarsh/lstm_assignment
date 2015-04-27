@@ -323,7 +323,11 @@ if not opt.no_train then
   print("Training is over.")
 -- end -- end of main() 
 else ----------------------- PREDICTIONS FROM USER INPUT
+
   print("Not training, just playing")
+  print("Reading training set to build vocab")
+  local state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+
   if opt.load then
     print("Loading model...")
     model = torch.load(opt.load_name)
