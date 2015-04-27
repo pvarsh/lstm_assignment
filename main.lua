@@ -329,9 +329,12 @@ end
 g_init_gpu({1}) -- was g_init_gpu(arg)
 
 if not opt.no_train then
+  print("Entering training block")
   ----------------------- TRAINING -------------------------
   state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-  state_valid = {data=transfer_data(ptb.validdataset(params.batch_size))}
+  if not opt.char then
+    state_valid = {data=transfer_data(ptb.validdataset(params.batch_size))}
+  end
   state_test  = {data=transfer_data(ptb.testdataset(params.batch_size))}
   print("Network parameters:")
   print(params)
