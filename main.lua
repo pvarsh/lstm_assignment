@@ -339,11 +339,14 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     data = stringx.split(data)
     state_in = {}
     state_in.data = transfer_data(torch.zeros(#data)) --TODO: add option
+    print("state_in.data size", state_in.data:size())
     for i=1,#data do
+      print(data[i])
       if ptb.vocab_map[data[i]] == nil then
         data[i] = '<unk>'
       end
       state_in.data[i] = ptb.vocab_map[data[i]]
+      print(state_in.data[i])
     end
 
     ---- Predict
