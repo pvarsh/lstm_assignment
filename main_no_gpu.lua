@@ -265,7 +265,7 @@ function generate_sequence()
   local perp = 0
   local len = 10
   g_replace_table(model.s[0], model.start_s)
-  predictions = torch.zeros(len)
+  predictions = transfer_data(torch.zeros(len))
   local x = state1.data[1] -- first input
   for i = 1, (len - 1) do
     print("Iteration ", i)
