@@ -5,6 +5,55 @@
 ----  This source code is licensed under the Apache 2 license found in the
 ----  LICENSE file in the root directory of this source tree. 
 ----
+
+if not opt then
+   print '==> processing options'
+   cmd = torch.CmdLine()
+   cmd:text()
+   cmd:text()
+   cmd:text('Options:')
+   cmd:option('-load', false, 'Load model filename')
+   cmd:option('-no_train', false, 'No train, play')
+   -- cmd:option('-batch_size', 20, 'Training batch size')
+   -- cmd:option('-seq_length', 20, 'Sequence length')
+   -- cmd:option('-layers', 2, 'Number of layers in network')
+   -- cmd:option('-decay', 2, 'Decay')
+   -- cmd:option('-rnn_size', 200, 'RNN size')
+   -- cmd:option('-dropout', 0, 'LSTM dropout')
+   -- cmd:option('-init_weight', 0.1, 'TODO')
+   -- cmd:option('-lr', 1, 'Learning rate')
+   -- cmd:option('-vocab_size', 10000, 'Vocabulary size')
+   -- cmd:option('-max_epoch', 4, 'Maximum number of training epochs')
+   -- cmd:option('-max_max_epoch', 13, 'TODO')
+   -- cmd:option('-max_grad_norm', 5, 'Gradient normalization parameter')
+   -- cmd:option('-use_gpu', false, 'Whether to run on GPU')
+   -- cmd:option('-model_save_fname', 'model.lstm', 'Save model as file name')
+   -- cmd:option('-model_load_fname', 'model.lstm', 'Model file to load')
+   -- cmd:option('-load_model', false, 'Whether to load model')
+   -- cmd:option('-pooling', 'max', '[max | logexp] pooling')
+   -- cmd:option('-beta', 20, 'LogExp pooling beta parameter')
+   -- cmd:option('-inputDim', 50, 'word vector dimension: [50 | 100 | 200 | 300]')
+   -- cmd:option('-glovePath', '/scratch/courses/DSGA1008/A3/glove/', 'path to GloVe files')
+   -- cmd:option('-dataPath', '/scratch/courses/DSGA1008/A3/data/train.t7b', 'path to data')
+   -- cmd:option('-idfPath', '../idf/idf.csv', 'path to idf.csv file')
+   -- cmd:option('-nTrainDocs', 10000, 'number of training documents in each class')
+   -- cmd:option('-nTestDocs', 1000, 'number of test documents in each class')
+   -- cmd:option('-nClasses', 5, 'number of classes')
+   -- cmd:option('-nEpochs', 50, 'number of training epochs')
+   -- cmd:option('-minibatchSize', 128, 'minibatch size')
+   -- cmd:option('-learningRate', 0.1, 'learning rate')
+   -- cmd:option('-learningRateDecay', 0.001, 'learning rate decay')
+   -- cmd:option('-momentum', 0.1, 'SGD momentum')
+   -- cmd:option('-model', 'linear_baseline', 'model function to be used [linear_baseline | linear_two_hidden | conv_baseline | conv_concat]')
+   -- cmd:option('-seed', 0, 'manual seed for initial data permutation')
+   -- cmd:option('-modelFileName' , 'model.net', 'filename to save model')
+   -- cmd:option('-wordWeight', 'none', 'word vector weights ["none" | "tfidf"]')
+   -- cmd:option('-normalize', 0, 'normalize bag of words [true | false]')
+   -- cmd:text()
+   opt = cmd:parse(arg or {})
+end
+
+
 ok,cunn = pcall(require, 'fbcunn')
 if not ok then
     ok,cunn = pcall(require,'cunn')
