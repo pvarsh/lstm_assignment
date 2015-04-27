@@ -82,6 +82,7 @@ local params = {batch_size=20,
 if opt.char then
   params.vocab_size = 50
   params.char_mult = 5.6
+  params.seq_length = 50
 end
 
 function transfer_data(x)
@@ -404,7 +405,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     -- local line = "the president of"
     print("Line: ", line)
 
-    predict_len = 50
+    predict_len = 20
 
     ---- Parse input
     local data = stringx.replace(line, '\n', '<eos>')
@@ -421,7 +422,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
       --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
       --           )
       -- data_vec = transfer_data(data_vec)
-      print("Input data vec", data_vec)
+      -- print("Input data vec", data_vec)
     end
 
 
@@ -429,7 +430,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
               data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
               )
     data_vec = transfer_data(data_vec)
-    print("resized data vec", data_vec)
+    -- print("resized data vec", data_vec)
     state_in = {}
     state_in.data = data_vec
 
