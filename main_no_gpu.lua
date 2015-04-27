@@ -280,8 +280,8 @@ function generate_sequence()
     -- Compute predictions
     pred2 = pred1[{ 1,{} }]
     pred2:div(pred2:sum())
-    _, predictions[i+1] = pred2:max(1)
-    -- predictions[i+1] = torch.multinomial(pred2, 1)
+    -- _, predictions[i+1] = pred2:max(1)
+    predictions[i+1] = torch.multinomial(pred2, 1)
     x = torch.ones(20):mul(predictions[i+1])
     print("predictions", x)
   end
