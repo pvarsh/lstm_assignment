@@ -268,10 +268,13 @@ function predict()
     local pred_slice = pred[{ 1,{} }]:float()
     pred_slice:exp() -- (pred_slice:sum()) -- normalize
     print("Sum of pred probs", pred_slice:sum())
-    -- print("pred_cpu sum", pred_cpu:sum())
-    predictions[i+1] = torch.multinomial(pred_slice, 1)
+    pred_index = torch.multinomial(pred_slice, 1)
+    -- Fill predictions with data
+    predictions[i] = state_in.data[{ i,1 }]
+    predictions[i+1] = pred_index --torch.multinomial(pred_slice, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
+  local x = state_in.data[len]
   print("Starting prediction loop")
   for i = len+1, predict_len-1 do
     local x = torch.ones(params.batch_size):mul(predictions[i])
