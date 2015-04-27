@@ -460,9 +460,6 @@ end
 
 if params.use_gpu then
   g_init_gpu({[1] = 1})
-  print("Initialized gpu")
-else
-  print("Did not initialize gpu")
 end
 
 if params.load_model then
@@ -493,6 +490,7 @@ if params.load_model then
       x[i] = ptb.vocab_map[data[i]]
       x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
       print(data[i],x[{i,1}])
+      x = transfer_data(x)
     end
 
     state1 = {}
