@@ -255,7 +255,7 @@ function predict()
     local s = model.s[i - 1]
     local pred
     perp_tmp, model.s[i], pred = unpack(
-                        model.rnns[i]:forward({x, y, model.s[i-1]})
+                        model.rnns[i]:forward({x, y, s})
                         )
     -- state_in.pos = state_in.pos + 1
 
@@ -277,7 +277,7 @@ function predict()
     local s = model.s[i - 1]
     local pred
     perp_tmp, model.s[i], pred = unpack(
-                        model.rnns[i]:forward({x, y, model.s[i-1]})
+                        model.rnns[i]:forward({x, y, s})
                         )
     -- state_in.pos = state_in.pos + 1
     -- g_replace_table(model.s[i-1], model.s[i])
