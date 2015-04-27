@@ -459,9 +459,8 @@ end
 --                 max_grad_norm=5}
 
 if params.use_gpu then
-  -- print("arg", arg)
-  -- for key, val in pairs(arg) do print(key,val) end
-  g_init_gpu({[1] = 1}) -- was arg
+  g_init_gpu({[1] = 1})
+  print("Initialized gpu")
 end
 
 if params.load_model then
