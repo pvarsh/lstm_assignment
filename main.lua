@@ -340,10 +340,10 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     state_in = {}
     state_in.data = transfer_data(torch.zeros(#data)) --TODO: add option
     for i=1,#data do
-      if vocab_map[data[i]] == nil then
+      if ptb.vocab_map[data[i]] == nil then
         data[i] = '<unk>'
       end
-      state_in.data[i] = vocab_map[data[i]]
+      state_in.data[i] = ptb.vocab_map[data[i]]
     end
 
     ---- Predict

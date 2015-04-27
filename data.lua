@@ -75,9 +75,9 @@ local function validdataset(batch_size)
    return x
 end
 
-return {traindataset=traindataset,
-        testdataset=testdataset,
-        validdataset=validdataset,
-        vocab_map=vocab_map,
-        vocab_inv_map
+return {traindataset  = traindataset,
+        testdataset   = testdataset,
+        validdataset  = validdataset,
+        vocab_map     = vocab_map,
+        vocab_inv_map = vocab_inv_map
       }
