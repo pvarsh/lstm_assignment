@@ -242,6 +242,8 @@ function predict()
   reset_state(state_in)
   g_disable_dropout(model.rnns)
   -- local perp = 0
+  local predictions = transfer_data(torch.zeros(predict_len))
+  local _
 
   -- loop through input to set states
   local len = state_in.data:size(1)
@@ -255,9 +257,15 @@ function predict()
     print("pred:size()", pred:size())
     -- perp = perp + perp_tmp[1]
     g_replace_table(model.s[i-1], model.s[i])
+
+    -- Process prediction
+    local pred_slice = pred[{ 1,{} }]
+    pred_slice:div(pred_slice:sum()) -- normalize
+    _, predictions[i+1] = pred_slice:max(1)
   end
   -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
+  return predictions
 end
 
 
@@ -362,7 +370,12 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     state_in.data = data_vec
 
     ---- Predict
-    predict()
+    predictions = predict()
+
+    pred_table = {}
+    for i=1,#predictions do
+      print(ptb.vocab_inv_map(predictions[i]))
+    end
 
   end
 end
