@@ -267,7 +267,7 @@ function predict()
     pred_slice:exp() -- (pred_slice:sum()) -- normalize
     print("Sum of pred probs", pred_slice:sum())
     -- print("pred_cpu sum", pred_cpu:sum())
-    predictions[i+1] = torch.multinomial(pred_cpu, 1)
+    predictions[i+1] = torch.multinomial(pred_slice, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
 
