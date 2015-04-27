@@ -395,6 +395,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     ---- Parse input
     local data = stringx.replace(line, '\n', '<eos>')
     local data = stringx.split(data)
+    print("data", data)
     
     local data_vec = torch.zeros(#data) --TODO: add option
     for i=1,#data do
@@ -402,13 +403,19 @@ else ----------------------- PREDICTIONS FROM USER INPUT
         data[i] = '<unk>'
       end
       data_vec[i] = ptb.vocab_map[data[i]]
-      data_vec = data_vec:resize(
-                data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
-                )
-      data_vec = transfer_data(data_vec)
+      -- data_vec = data_vec:resize(
+      --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
+      --           )
+      -- data_vec = transfer_data(data_vec)
       print("Input data vec", data_vec)
     end
 
+
+    data_vec = data_vec:resize(
+              data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
+              )
+    data_vec = transfer_data(data_vec)
+    print("resized data vec", data_vec)
     state_in = {}
     state_in.data = data_vec
 
