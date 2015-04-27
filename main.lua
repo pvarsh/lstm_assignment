@@ -332,7 +332,7 @@ function query_sentences()
   data_vec = data_vec:
              resize(data_vec:size(1), 1):
              expand(data_vec:size(1), params.batch_size)
-
+  print("data_vec:size()", data_vec:size())
   -- Create global state
   state_in = {}
   state_in.data = transfer_data(data_vec)
