@@ -496,7 +496,7 @@ if params.load_model then
     state1 = {}
     state1.pos = 1
     state1.data = x
-    state1 = transfer_data(state1)
+    -- state1 = transfer_data(state1)
     predictions = generate_sequence()
     print("predictions", predictions)
 
