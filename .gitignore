@@ -4,3 +4,5 @@
 *.aux
 *.bbl
 nips2014.tex
+*.net
+*.lstm
