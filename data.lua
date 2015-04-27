@@ -11,14 +11,14 @@ local file = require('pl.file')
 
 local ptb_path = "./data/"
 
-local tinyfn  = ptb_path .. "tiny.txt"
-local trainfn = ptb_path .. "ptb.train.txt"
-local testfn  = ptb_path .. "ptb.test.txt"
-local validfn = ptb_path .. "ptb.valid.txt"
---[[
+-- Word datasets
+-- local trainfn = ptb_path .. "ptb.train.txt"
+-- local testfn  = ptb_path .. "ptb.test.txt"
+-- local validfn = ptb_path .. "ptb.valid.txt"
+
+-- Character datasets
 local trainfn = ptb_path .. "ptb.char.train.txt"
 local validfn = ptb_path .. "ptb.char.valid.txt"
---]]
 
 local vocab_idx = 0
 local vocab_map = {}
@@ -28,7 +28,6 @@ local vocab_inv_map = {}
 -- into a single matrix of size x_inp:size(1) x batch_size.
 local function replicate(x_inp, batch_size)
    local s = x_inp:size(1)
-   -- print(string.format("x_inp:size(1) = %d", s))
    local x = torch.zeros(torch.floor(s / batch_size), batch_size)
    for i = 1, batch_size do
      local start = torch.round((i - 1) * s / batch_size) + 1
@@ -39,20 +38,20 @@ local function replicate(x_inp, batch_size)
 end
 
 local function load_data(fname)
-    local data = file.read(fname)
-    data = stringx.replace(data, '\n', '<eos>')
-    data = stringx.split(data)
-    --print(string.format("Loading %s, size of data = %d", fname, #data))
-    local x = torch.zeros(#data)
-    for i = 1, #data do
+   local data = file.read(fname)
+   data = stringx.replace(data, '\n', '<eos>')
+   data = stringx.split(data)
+   --print(string.format("Loading %s, size of data = %d", fname, #data))
+   local x = torch.zeros(#data)
+   for i = 1, #data do
       if vocab_map[data[i]] == nil then
-        vocab_idx = vocab_idx + 1
-        vocab_map[data[i]] = vocab_idx
-        vocab_inv_map[vocab_idx] = data[i]
+         vocab_idx = vocab_idx + 1
+         vocab_map[data[i]] = vocab_idx
+         vocab_inv_map[vocab_idx] = data[i]
       end
       x[i] = vocab_map[data[i]]
-    end
-    return x
+   end
+   return x
 end
 
 local function traindataset(batch_size, char)
@@ -82,6 +81,4 @@ return {traindataset  = traindataset,
         validdataset  = validdataset,
         vocab_map     = vocab_map,
         vocab_inv_map = vocab_inv_map
-       }
-
--- x = traindataset(5)
+      }
