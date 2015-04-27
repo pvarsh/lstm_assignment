@@ -255,6 +255,7 @@ function predict()
     local s = model.s[i - 1]
     local pred
     print("x:size", x:size())
+    print("x", x)
     perp_tmp, model.s[i], pred = unpack(
                         model.rnns[i]:forward({x, y, s})
                         )
@@ -274,6 +275,7 @@ function predict()
 
   for i = len+1, predict_len-1 do
     local x = torch.ones(params.batch_size):mul(predictions[i+1])
+    print("x", x)
     local y = state_in.data[1] -- y doesn' tmatter for now
     local s = model.s[i - 1]
     local pred
