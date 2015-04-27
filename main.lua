@@ -350,6 +350,7 @@ end
 
 function assignment_output()
   print("OK GO")
+  io.flush()
   ok, line = readline()
   state_in = {}
   while ok do
@@ -376,10 +377,15 @@ function assignment_output()
     -- prob_slice:div(prob_slice:sum())
     out_string = ""
     for i = 1,prob_slice:size(1) do
-      out_string = out_string .. " " .. prob_slice[i]
+      if i == 1 then
+        out_string = out_string .. prob_slice[i]
+      else
+        out_string = out_string .. " " .. prob_slice[i]
+      end
     end
     print(out_string)
-
+    io.flush()
+    
     ok, line = readline()
   end
 end
