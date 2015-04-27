@@ -360,7 +360,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
     ---- User input (TODO)
     print("Enter a word or a pharse")
-    local line = readline()
+    local ok, line = readline()
 
     -- local line = "the president of"
     print("Line: ", line)
