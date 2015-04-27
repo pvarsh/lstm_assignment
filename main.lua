@@ -24,8 +24,12 @@ else
     cudaComputeCapability = deviceParams.major + deviceParams.minor/10
     LookupTable = nn.LookupTable
 end
+
+
 require('nngraph')
 require('base')
+local stringx = require('pl.stringx')
+
 ptb = require('data')
 
 if not opt then
