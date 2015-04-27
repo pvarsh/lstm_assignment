@@ -329,7 +329,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     model = torch.load(opt.load_name)
 
     ---- User input (TODO)
-    input = "the president of"
+    line = "the president of"
     print("Input: ", input)
 
     predict_len = 15
