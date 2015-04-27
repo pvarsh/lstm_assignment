@@ -7,8 +7,6 @@
 ----
 
 
-
-
 ok,cunn = pcall(require, 'fbcunn')
 if not ok then
     ok,cunn = pcall(require,'cunn')
@@ -40,9 +38,10 @@ if not opt then
    cmd:text('Options:')
    cmd:option('-load', false, 'Load model')
    cmd:option('-load_name', 'model.net', 'Model file name to load')
-   cmd:option('-no_train', false, 'No train, play')
-   cmd:option('-char', false, 'Character-level model')
+   cmd:option('-no_train', false, 'No train, play (Boolean)')
+   cmd:option('-char', false, 'Character-level model (Boolean)')
    cmd:option('-seq_length', 20, 'Sequence length')
+   cmd:option('-submission', false, 'Submission (Boolean)')
    cmd:text()
    opt = cmd:parse(arg or {})
 end
@@ -254,7 +253,7 @@ function run_test()
 end
 
 function predict()
-  -- reset_state(state_in)
+  reset_state(state_in)
   g_disable_dropout(model.rnns)
     -- loop through input to set states
   local input_len = state_in.data:size(1)
@@ -314,6 +313,8 @@ function readline()
 end
 
 function query_sentences()
+  -- TODO: make it work for sequences that are longer than seq_length
+  
   -- Get and parse query
   print("Query: len word1 word2 etc.")
   local _, line = readline()
@@ -331,11 +332,14 @@ function query_sentences()
   data_vec = data_vec:
              resize(data_vec:size(1), 1):
              expand(data_vec:size(1), params.batch_size)
+
   -- Create global state
   state_in = {}
   state_in.data = transfer_data(data_vec)
+
   -- Run generator
   predictions = predict()
+
   -- Translate results using inverse vocab map
   local predict_output = ''
   for i=1,predictions:size(1) do
@@ -344,16 +348,41 @@ function query_sentences()
   print(predict_output)
 end
 
+function assignment_output()
+  print("OK GO")
+  ok, line = readline()
+  tt = {['t'] = 5}
+  state_in = {}
+  while ok do
+    -- Prepare input
+    local input = ptb.vocab_map[line]
+    input = input:
+             resize(input:size(1), 1):
+             expand(input:size(1), params.batch_size)
+    state_in.data = transfer_data(input)
 
-------------------------------------------------------------------------
--- main()
-------------------------------------------------------------------------
+    -- Prepare model and get predictions
+    g_disable_dropout(model.rnns)
+    reset_state(state_in)
 
--- function main()
+    perp, next_s, log_prob = model.rnns[1]:forward({input,
+                                                    input,
+                                                    model.s[0]})
+    g_enable_dropout(model.rnns)
+    prob_slice = [{ 1, {} }]:float()
+    prob_slice:exp()
+    print('sum of probabilities', prob_slice:sum())
+    prob_slice:div(prob_slice:sum())
+    print('sum of probabilities', prob_slice:sum())
+    print('probabilities', prob_slice)
+
+    ok, line = readline()
+  end
+end
+
 g_init_gpu({1}) -- was g_init_gpu(arg)
 
 if not opt.no_train then
-  print("Entering training block")
   ----------------------- TRAINING -------------------------
   state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
   state_valid = {data=transfer_data(ptb.validdataset(params.batch_size))}
@@ -412,6 +441,10 @@ if not opt.no_train then
   run_test()
   print("Training is over.")
 -- end -- end of main() 
+elseif opt.submission then
+  ----------------------- SUBMISSION PREDICTIONS
+  assignment_output()
+
 else ----------------------- PREDICTIONS FROM USER INPUT
 
   print("Not training, just playing")
@@ -423,49 +456,5 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     model = torch.load(opt.load_name)
 
     query_sentences()
-
-    -- ---- User input (TODO)
-    -- print("Enter a word or a pharse")
-    -- local ok, line = readline()
-
-    -- -- local line = "the president of"
-    -- print("Line: ", line)
-
-    -- predict_len = params.seq_length
-
-    -- ---- Parse input
-    -- local data = stringx.replace(line, '\n', '<eos>')
-    -- local data = stringx.split(data)
-    -- print("data", data)
-    
-    -- local data_vec = torch.zeros(#data) --TODO: add option
-    -- for i=1,#data do
-    --   if ptb.vocab_map[data[i]] == nil then
-    --     data[i] = '<unk>'
-    --   end
-    --   data_vec[i] = ptb.vocab_map[data[i]]
-    --   -- data_vec = data_vec:resize(
-    --   --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
-    --   --           )
-    --   -- data_vec = transfer_data(data_vec)
-    --   -- print("Input data vec", data_vec)
-    -- end
-
-    -- data_vec = data_vec:resize(
-    --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
-    --           )
-    -- data_vec = transfer_data(data_vec)
-    -- -- print("resized data vec", data_vec)
-    -- state_in = {}
-    -- state_in.data = data_vec
-
-    -- ---- Predict
-    -- predictions = predict()
-    -- pred_table = {}
-
-    -- for i=1,predict_len do -- TODO change 15 to param
-    --   print(ptb.vocab_inv_map[predictions[i]])
-    -- end
-
   end
 end
