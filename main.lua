@@ -375,7 +375,7 @@ function assignment_output()
     prob_slice:exp()
     prob_slice:div(prob_slice:sum())
     out_string = ""
-    for i = 1,#prob_slice do
+    for i = 1,prob_slice:size(1) do
       out_string = out_string .. prob_slice[i]
     end
     print(out_string)
