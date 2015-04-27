@@ -253,7 +253,9 @@ function predict()
     local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
     local pred
-    perp_tmp, model.s[i], pred = unpack(model.rnns[i]:forward({x, y, model.s[i-1]}))
+    perp_tmp, model.s[i], pred = unpack(
+                        model.rnns[i]:forward({x, y, model.s[i-1]})
+                        )
     print("pred:size()", pred:size())
     -- perp = perp + perp_tmp[1]
     g_replace_table(model.s[i-1], model.s[i])
@@ -261,8 +263,11 @@ function predict()
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
-    _, predictions[i+1] = pred_slice:max(1)
+    -- _, predictions[i+1] = pred_slice:max(1) -- max
+    predictions[i+1] = torch.multinomial(pred2, 1)  -- multinomial
   end
+
+
   -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
   return predictions
@@ -345,7 +350,10 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     model = torch.load(opt.load_name)
 
     ---- User input (TODO)
-    local line = "the president of"
+    print("Enter a word or a pharse")
+    local line = readline()
+
+    -- local line = "the president of"
     print("Line: ", line)
 
     predict_len = 15
