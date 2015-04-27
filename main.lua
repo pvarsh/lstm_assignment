@@ -14,42 +14,7 @@ if not opt then
    cmd:text('Options:')
    cmd:option('-load', false, 'Load model filename')
    cmd:option('-no_train', false, 'No train, play')
-   -- cmd:option('-batch_size', 20, 'Training batch size')
-   -- cmd:option('-seq_length', 20, 'Sequence length')
-   -- cmd:option('-layers', 2, 'Number of layers in network')
-   -- cmd:option('-decay', 2, 'Decay')
-   -- cmd:option('-rnn_size', 200, 'RNN size')
-   -- cmd:option('-dropout', 0, 'LSTM dropout')
-   -- cmd:option('-init_weight', 0.1, 'TODO')
-   -- cmd:option('-lr', 1, 'Learning rate')
-   -- cmd:option('-vocab_size', 10000, 'Vocabulary size')
-   -- cmd:option('-max_epoch', 4, 'Maximum number of training epochs')
-   -- cmd:option('-max_max_epoch', 13, 'TODO')
-   -- cmd:option('-max_grad_norm', 5, 'Gradient normalization parameter')
-   -- cmd:option('-use_gpu', false, 'Whether to run on GPU')
-   -- cmd:option('-model_save_fname', 'model.lstm', 'Save model as file name')
-   -- cmd:option('-model_load_fname', 'model.lstm', 'Model file to load')
-   -- cmd:option('-load_model', false, 'Whether to load model')
-   -- cmd:option('-pooling', 'max', '[max | logexp] pooling')
-   -- cmd:option('-beta', 20, 'LogExp pooling beta parameter')
-   -- cmd:option('-inputDim', 50, 'word vector dimension: [50 | 100 | 200 | 300]')
-   -- cmd:option('-glovePath', '/scratch/courses/DSGA1008/A3/glove/', 'path to GloVe files')
-   -- cmd:option('-dataPath', '/scratch/courses/DSGA1008/A3/data/train.t7b', 'path to data')
-   -- cmd:option('-idfPath', '../idf/idf.csv', 'path to idf.csv file')
-   -- cmd:option('-nTrainDocs', 10000, 'number of training documents in each class')
-   -- cmd:option('-nTestDocs', 1000, 'number of test documents in each class')
-   -- cmd:option('-nClasses', 5, 'number of classes')
-   -- cmd:option('-nEpochs', 50, 'number of training epochs')
-   -- cmd:option('-minibatchSize', 128, 'minibatch size')
-   -- cmd:option('-learningRate', 0.1, 'learning rate')
-   -- cmd:option('-learningRateDecay', 0.001, 'learning rate decay')
-   -- cmd:option('-momentum', 0.1, 'SGD momentum')
-   -- cmd:option('-model', 'linear_baseline', 'model function to be used [linear_baseline | linear_two_hidden | conv_baseline | conv_concat]')
-   -- cmd:option('-seed', 0, 'manual seed for initial data permutation')
-   -- cmd:option('-modelFileName' , 'model.net', 'filename to save model')
-   -- cmd:option('-wordWeight', 'none', 'word vector weights ["none" | "tfidf"]')
-   -- cmd:option('-normalize', 0, 'normalize bag of words [true | false]')
-   -- cmd:text()
+   cmd:text()
    opt = cmd:parse(arg or {})
 end
 
@@ -276,57 +241,67 @@ end
 
 -- function main()
 g_init_gpu(arg)
-state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
-state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
-print("Network parameters:")
-print(params)
-local states = {state_train, state_valid, state_test}
-for _, state in pairs(states) do
- reset_state(state)
-end
-setup()
-step = 0
-epoch = 0
-total_cases = 0
-beginning_time = torch.tic()
-start_time = torch.tic()
-print("Starting training.")
-words_per_step = params.seq_length * params.batch_size
-epoch_size = torch.floor(state_train.data:size(1) / params.seq_length)
---perps
-while epoch < params.max_max_epoch do
- perp = fp(state_train)
- if perps == nil then
-   perps = torch.zeros(epoch_size):add(perp)
- end
- perps[step % epoch_size + 1] = perp
- step = step + 1
- bp(state_train)
- total_cases = total_cases + params.seq_length * params.batch_size
- epoch = step / epoch_size
- if step % torch.round(epoch_size / 10) == 10 then
-   wps = torch.floor(total_cases / torch.toc(start_time))
-   since_beginning = g_d(torch.toc(beginning_time) / 60)
-   print('epoch = ' .. g_f3(epoch) ..
-         ', train perp. = ' .. g_f3(torch.exp(perps:mean())) ..
-         ', wps = ' .. wps ..
-         ', dw:norm() = ' .. g_f3(model.norm_dw) ..
-         ', lr = ' ..  g_f3(params.lr) ..
-         ', since beginning = ' .. since_beginning .. ' mins.')
- end
- if step % epoch_size == 0 then
-   run_valid()
-   torch.save('model.net', model)
-   if epoch > params.max_epoch then
-       params.lr = params.lr / params.decay
+
+if not opt.no_train then
+  state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+  state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
+  state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
+  print("Network parameters:")
+  print(params)
+  local states = {state_train, state_valid, state_test}
+  for _, state in pairs(states) do
+   reset_state(state)
+  end
+  setup()
+  step = 0
+  epoch = 0
+  total_cases = 0
+  beginning_time = torch.tic()
+  start_time = torch.tic()
+  print("Starting training.")
+  words_per_step = params.seq_length * params.batch_size
+  epoch_size = torch.floor(state_train.data:size(1) / params.seq_length)
+  --perps
+  while epoch < params.max_max_epoch do
+   perp = fp(state_train)
+   if perps == nil then
+     perps = torch.zeros(epoch_size):add(perp)
    end
- end
- if step % 33 == 0 then
-   cutorch.synchronize()
-   collectgarbage()
- end
-end
-run_test()
-print("Training is over.")
+   perps[step % epoch_size + 1] = perp
+   step = step + 1
+   bp(state_train)
+   total_cases = total_cases + params.seq_length * params.batch_size
+   epoch = step / epoch_size
+   if step % torch.round(epoch_size / 10) == 10 then
+     wps = torch.floor(total_cases / torch.toc(start_time))
+     since_beginning = g_d(torch.toc(beginning_time) / 60)
+     print('epoch = ' .. g_f3(epoch) ..
+           ', train perp. = ' .. g_f3(torch.exp(perps:mean())) ..
+           ', wps = ' .. wps ..
+           ', dw:norm() = ' .. g_f3(model.norm_dw) ..
+           ', lr = ' ..  g_f3(params.lr) ..
+           ', since beginning = ' .. since_beginning .. ' mins.')
+   end
+   if step % epoch_size == 0 then
+     run_valid()
+     print("Saving model...")
+     torch.save('model.net', model)
+     if epoch > params.max_epoch then
+         params.lr = params.lr / params.decay
+     end
+   end
+   if step % 33 == 0 then
+     cutorch.synchronize()
+     collectgarbage()
+   end
+  end
+  run_test()
+  print("Training is over.")
 -- end
+else
+  print("Not training, just playing")
+  if opt.load then
+    print("Loading model")
+    model = torch.load(opt.load)
+  end
+end
