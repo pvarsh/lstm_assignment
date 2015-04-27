@@ -375,7 +375,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     pred_table = {}
 
     for i=1,15 do -- TODO change 15 to param
-      print(ptb.vocab_inv_map(predictions[i]))
+      print(ptb.vocab_inv_map[predictions[i]])
     end
 
   end
