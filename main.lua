@@ -261,10 +261,10 @@ function predict()
   local _
 
   -- loop through input to set states
-  local len = state_in.data:size(1)
+  local input_len = state_in.data:size(1)
   g_replace_table(model.s[0], model.start_s)
   print("Starting input forward loop")
-  for i = 1,len do
+  for i = 1,input_len do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter here
     local s = model.s[i - 1]
@@ -273,11 +273,6 @@ function predict()
     perp_tmp, model.s[i], pred = unpack(
                         model.rnns[i]:forward({x, y, s})
                         )
-    -- state_in.pos = state_in.pos + 1
-
-    -- perp = perp + perp_tmp[1]
-    -- g_replace_table(model.s[i-1], model.s[i])
-
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]:float()
     pred_slice:exp() -- (pred_slice:sum()) -- normalize
@@ -287,27 +282,22 @@ function predict()
     predictions[i+1] = pred_index
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
-  local x = state_in.data[len]
+  local x = state_in.data[input_len]
   print("Starting prediction loop")
-  for i = len+1, predict_len-1 do
+  for i = input_len+1, predict_len + input_len -1 do
     local x = torch.ones(params.batch_size):mul(predictions[i])
-    print("x", x[1])
-    local y = state_in.data[1] -- y doesn' tmatter for now
+    -- print("x", x[1])
+    local y = state_in.data[1] -- y doesn't matter here
     local s = model.s[i - 1]
     local pred
     perp_tmp, model.s[i], pred = unpack(
                         model.rnns[i]:forward({x, y, s})
                         )
-    -- state_in.pos = state_in.pos + 1
-    -- g_replace_table(model.s[i-1], model.s[i])
     local pred_slice = pred[{ 1,{} }]:float()
-    pred_slice:exp() -- div(pred_slice:sum()) -- normalize
+    pred_slice:exp()
     predictions[i+1] = torch.multinomial(pred_slice, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
-
-
-  -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
   return predictions
 end
