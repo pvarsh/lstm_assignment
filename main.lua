@@ -355,7 +355,7 @@ function assignment_output()
   while ok do
     -- Prepare input
     local input = ptb.vocab_map[line]
-    local x = transfer_data(torch.ones(params.batch_size, 1):mul(input))
+    local x = transfer_data(torch.ones(1, params.batch_size):mul(input))
     state_in.data = x
     print("xxxxxx", x)
 
