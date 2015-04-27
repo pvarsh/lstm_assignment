@@ -259,7 +259,7 @@ function predict()
     -- loop through input to set states
   local input_len = state_in.data:size(1)
   local predictions = transfer_data(
-                          torch.zeros(predict_len _ input_len)
+                          torch.zeros(predict_len + input_len)
                           )
   local _
   g_replace_table(model.s[0], model.start_s)
