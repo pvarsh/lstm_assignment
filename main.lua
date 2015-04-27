@@ -259,7 +259,7 @@ end
 ------------------------------------------------------------------------
 
 -- function main()
-g_init_gpu(1) -- was g_init_gpu(arg)
+g_init_gpu(2) -- was g_init_gpu(arg)
 
 if not opt.no_train then
   ----------------------- TRAINING -------------------------
