@@ -362,8 +362,8 @@ function assignment_output()
     g_disable_dropout(model.rnns)
     reset_state(state_in)
     g_replace_table(model.s[0], model.start_s)
-    local x = state.data[1]
-    local y = state.data[1]
+    local x = state_in.data[1]
+    local y = state_in.data[1]
     -- Since we are not interested in error, we can forward prop without y
     perp, next_s, log_prob = model.rnns[1]:forward({x,
                                                     y,
