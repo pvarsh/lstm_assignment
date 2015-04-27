@@ -259,7 +259,7 @@ function predict()
     state_in.pos = state_in.pos + 1
 
     -- perp = perp + perp_tmp[1]
-    g_replace_table(model.s[i-1], model.s[i])
+    -- g_replace_table(model.s[i-1], model.s[i])
 
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]
