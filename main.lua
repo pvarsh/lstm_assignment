@@ -249,13 +249,14 @@ function predict()
   -- loop through input to set states
   local len = state_in.data:size(1)
   g_replace_table(model.s[0], model.start_s)
+  print("Starting input forward loop")
   for i = 1, (len) do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
     local pred
     print("x:size", x:size())
-    print("x", x)
+    print("x", x[1])
     perp_tmp, model.s[i], pred = unpack(
                         model.rnns[i]:forward({x, y, s})
                         )
@@ -272,10 +273,10 @@ function predict()
     predictions[i+1] = torch.multinomial(pred_slice, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
-
+  print("Starting prediction loop")
   for i = len+1, predict_len-1 do
     local x = torch.ones(params.batch_size):mul(predictions[i+1])
-    print("x", x)
+    print("x", x[1])
     local y = state_in.data[1] -- y doesn' tmatter for now
     local s = model.s[i - 1]
     local pred
