@@ -289,8 +289,8 @@ function predict()
     -- g_replace_table(model.s[i-1], model.s[i])
     local pred_slice = pred[{ 1,{} }]:float()
     pred_slice:exp() -- div(pred_slice:sum()) -- normalize
-    -- predictions[i+1] = torch.multinomial(pred_slice, 1)
-    _, predictions[i+1] = pred_slice:max(1) -- max
+    predictions[i+1] = torch.multinomial(pred_slice, 1)
+    -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
 
 
@@ -424,7 +424,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     predictions = predict()
     pred_table = {}
 
-    for i=#data+1,predict_len do -- TODO change 15 to param
+    for i=1,predict_len do -- TODO change 15 to param
       print(ptb.vocab_inv_map[predictions[i]])
     end
 
