@@ -362,6 +362,7 @@ function assignment_output()
     -- Prepare model and get predictions
     g_disable_dropout(model.rnns)
     reset_state(state_in)
+    model.s[0] = model.start_s
     print("model.s[0]", model.s[0])
     -- Since we are not interested in error, we can forward prop without y
     perp, next_s, log_prob = model.rnns[1]:forward({x,
