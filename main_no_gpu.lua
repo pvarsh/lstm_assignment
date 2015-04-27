@@ -165,7 +165,9 @@ function fp(state)
     local s = model.s[i - 1]
     -- print(x, y, s)
     -- Why does forward return both output (model.s) and error?
-    model.err[i], model.s[i], pred1 = unpack(model.rnns[i]:forward({x, y, s}))
+    model.err[i], model.s[i], pred1 = unpack(
+                                model.rnns[i]:forward({x, y, s})
+                                )
     state.pos = state.pos + 1
   end
   g_replace_table(model.start_s, model.s[params.seq_length])
@@ -220,7 +222,9 @@ function run_test()
     local x = state_test.data[i]
     local y = state_test.data[i + 1]
     local s = model.s[i - 1]
-    perp_tmp, model.s[1], pred1 = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
+    perp_tmp, model.s[1], pred1 = unpack(
+                            model.rnns[1]:forward({x, y, model.s[0]})
+                            )
     perp = perp + perp_tmp[1]
     g_replace_table(model.s[0], model.s[1])
   end
@@ -239,16 +243,49 @@ function run_my_test()
     local x = state1.data[i]
     local y = state1.data[i + 1]
     local s = model.s[i - 1]
-    perp_tmp, model.s[1], pred1 = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
-    -- predictions[i+1] = torch.multinomial(pred1[{ 1,{} }], 1)
-    -- print("model.s[1][4] = ", model.s[1][4])
+    perp_tmp, model.s[1], pred1 = unpack(
+                            model.rnns[1]:forward({x, y, model.s[0]})
+                            )
     perp = perp + perp_tmp[1]
     g_replace_table(model.s[0], model.s[1])
+    -- Compute predictions
     pred2 = pred1[{ 1,{} }]
     pred2:div(pred2:sum())
     predictions[i+1] = torch.multinomial(pred2, 1)
   end
   print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
+  g_enable_dropout(model.rnns)
+  return predictions
+end
+
+
+function generate_sequence()
+  reset_state(state1)
+  g_disable_dropout(model.rnns)
+  local perp = 0
+  local len = 10
+  g_replace_table(model.s[0], model.start_s)
+  predictions = torch.zeros(len)
+  local x = state1.data[1] -- first input
+  for i = 1, (len - 1) do
+    print("Iteration ", i)
+    -- local x = state1.data[i]
+    local y = state1.data[1]
+    local s = model.s[i - 1]
+    perp_tmp, model.s[i], pred1 = unpack(
+                            model.rnns[i]:forward({x, y, s})
+                            )
+    -- perp = perp + perp_tmp[1]
+    -- g_replace_table(model.s[0], model.s[1])
+    -- Compute predictions
+    pred2 = pred1[{ 1,{} }]
+    pred2:div(pred2:sum())
+    _, predictions[i+1] = pred2:max(1)
+    -- predictions[i+1] = torch.multinomial(pred2, 1)
+    x = torch.ones(20):mul(predictions[i+1])
+    print("predictions", x)
+  end
+  -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
   return predictions
 end
@@ -394,6 +431,17 @@ else
   LookupTable = nn.LookupTable
 end
 
+function readline()
+  local line = io.read("*line")
+  if string.len(line) == 0 then
+    return false, line
+  else
+    return true, line
+  end
+end
+
+
+
 -- params.batch_size = 2
 -- state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
 
@@ -416,26 +464,39 @@ if params.load_model then
     print(key, val)
   end
 
+  -- Build vocab
   ptb.traindataset(params.batch_size)
 
   setup()
-  test_str = "the president issued an executive order"
-  data = stringx.replace(test_str, '\n', '<eos>')
-  data = stringx.split(data)
-  x = torch.zeros(#data)
-  for i = 1,#data do
-    x[i] = ptb.vocab_map[data[i]]
-    x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
-    print(data[i],x[{i,1}])
+
+
+  ok = true
+  while ok do
+    print("Enter a word or a phrase")
+    local ok, line = readline()
+
+    data = stringx.replace(line, '\n', '<eos>')
+    data = stringx.split(data)
+    x = torch.zeros(#data)
+    for i = 1,#data do
+      if ptb.vocab_map[data[i]] == nil then
+        data[i] = '<unk>'
+      end
+      x[i] = ptb.vocab_map[data[i]]
+      x = x:resize(x:size(1), 1):expand(x:size(1), params.batch_size)
+      print(data[i],x[{i,1}])
+    end
+
+    state1 = {}
+    state1.pos = 1
+    state1.data = x
+    predictions = generate_sequence()
+    print("predictions", predictions)
+
+    for i=1,10 do
+      print(ptb.vocab_inv_map[predictions[i]])
+    end
   end
-
-  -- ptb.testdataset(params.batch_size)
-
-  state1 = {}
-  state1.pos = 1
-  state1.data = x
-
-  predictions = run_my_test()
 else
   main()
 end
