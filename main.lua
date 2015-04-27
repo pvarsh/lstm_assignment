@@ -362,6 +362,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     state_in.data = data_vec
 
     ---- Predict
+    predict()
 
   end
 end
