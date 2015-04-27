@@ -239,7 +239,7 @@ function run_test()
 end
 
 function predict()
-  reset_state(state_in)
+  -- reset_state(state_in)
   g_disable_dropout(model.rnns)
   -- local perp = 0
   local predictions = transfer_data(torch.zeros(predict_len))
@@ -247,7 +247,7 @@ function predict()
 
   -- loop through input to set states
   local len = state_in.data:size(1)
-  g_replace_table(model.s[0], model.start_s)
+  -- g_replace_table(model.s[0], model.start_s)
   for i = 1, (len) do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter for now
@@ -265,7 +265,7 @@ function predict()
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
     pred_cpu = pred_slice:float()
-    print("pred_cpu sum", pred_cpu:sum())
+    -- print("pred_cpu sum", pred_cpu:sum())
     predictions[i+1] = torch.multinomial(pred_cpu, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
@@ -283,7 +283,7 @@ function predict()
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
     pred_cpu = pred_slice:float()
-    print("pred_cpu sum", pred_cpu:sum())
+    -- print("pred_cpu sum", pred_cpu:sum())
     predictions[i+1] = torch.multinomial(pred_cpu, 1)
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
@@ -409,10 +409,9 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
     ---- Predict
     predictions = predict()
-
     pred_table = {}
 
-    for i=1,15 do -- TODO change 15 to param
+    for i=1,predict_len do -- TODO change 15 to param
       print(ptb.vocab_inv_map[predictions[i]])
     end
 
