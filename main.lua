@@ -248,7 +248,7 @@ function predict()
   -- loop through input to set states
   local len = state_in.data:size(1)
   g_replace_table(model.s[0], model.start_s)
-  for i = 1, (len - 1) do
+  for i = 1, (len) do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
@@ -258,11 +258,28 @@ function predict()
                         )
     state_in.pos = state_in.pos + 1
 
-    print("pred:size()", pred:size())
     -- perp = perp + perp_tmp[1]
     g_replace_table(model.s[i-1], model.s[i])
 
     -- Process prediction
+    local pred_slice = pred[{ 1,{} }]
+    pred_slice:div(pred_slice:sum()) -- normalize
+    -- pred_cpu = pred_slice:float()
+    -- print("pred_cpu sum", pred_cpu:sum())
+    -- predictions[i+1] = torch.multinomial(pred_cpu, 1)
+    _, predictions[i+1] = pred_slice:max(1) -- max
+  end
+
+  for i = len+1, predict_len-1 do
+    local x = torch.ones(params.batch_size):mul(predictions[i+1])
+    local y = state_in.data[1] -- y doesn' tmatter for now
+    local s = model.s[i - 1]
+    local pred
+    perp_tmp, model.s[i], pred = unpack(
+                        model.rnns[i]:forward({x, y, model.s[i-1]})
+                        )
+    state_in.pos = state_in.pos + 1
+    g_replace_table(model.s[i-1], model.s[i])
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
     -- pred_cpu = pred_slice:float()
