@@ -360,6 +360,7 @@ function assignment_output()
     print("torch.ones", torch.ones(5))
     -- print("buggy line", torch.ones(params.batch_size):mul(input))
     local x = torch.ones(5)
+    x = transfer_data(x)
     x:mul(input)
     state_in.data = transfer_data(x)
 
