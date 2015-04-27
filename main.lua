@@ -231,7 +231,23 @@ function run_test()
   g_enable_dropout(model.rnns)
 end
 
-
+-- function predict()
+--   reset_state(state_in)
+--   g_disable_dropout(model.rnns)
+--   -- local perp = 0
+--   local len = state_in.data:size(1)
+--   g_replace_table(model.s[0], model.start_s)
+--   for i = 1, (len - 1) do
+--     local x = state_test.data[i]
+--     local y = state_test.data[i + 1]
+--     local s = model.s[i - 1]
+--     perp_tmp, model.s[1] = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
+--     perp = perp + perp_tmp[1]
+--     g_replace_table(model.s[0], model.s[1])
+--   end
+--   print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
+--   g_enable_dropout(model.rnns)
+-- end
 
 
 
@@ -309,16 +325,21 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     input = "the president of"
     print("Input: ", input)
 
+    predict_len = 15
+
     ---- Parse input
     data = stringx.replace(line, '\n', '<eos>')
     data = stringx.split(data)
     state_in = {}
-    state_in.data = transfer_data(torch.zeros(params.seq_length)) --TODO: does seq_length make sense?
+    state_in.data = transfer_data(torch.zeros(#data)) --TODO: add option
     for i=1,#data do
       if vocab_map[data[i]] == nil then
         data[i] = '<unk>'
       end
       state_in.data[i] = vocab_map[data[i]]
     end
+
+    ---- Predict
+
   end
 end
