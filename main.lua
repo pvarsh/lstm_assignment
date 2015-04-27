@@ -329,25 +329,25 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     model = torch.load(opt.load_name)
 
     ---- User input (TODO)
-    line = "the president of"
+    local line = "the president of"
     print("Input: ", input)
 
     predict_len = 15
 
     ---- Parse input
-    data = stringx.replace(line, '\n', '<eos>')
-    data = stringx.split(data)
-    state_in = {}
-    state_in.data = transfer_data(torch.zeros(#data)) --TODO: add option
-    print("state_in.data size", state_in.data:size())
+    local data = stringx.replace(line, '\n', '<eos>')
+    local data = stringx.split(data)
+    
+    local data_vec = torch.zeros(#data)) --TODO: add option
     for i=1,#data do
       print(data[i])
       if ptb.vocab_map[data[i]] == nil then
         data[i] = '<unk>'
       end
-      state_in.data[i] = ptb.vocab_map[data[i]]
-      print(state_in.data[i])
+      data_vec[i] = ptb.vocab_map[data[i]]
     end
+
+    state_in = {}
 
     ---- Predict
 
