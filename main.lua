@@ -274,7 +274,7 @@ function predict()
   end
   print("Starting prediction loop")
   for i = len+1, predict_len-1 do
-    local x = torch.ones(params.batch_size):mul(predictions[i+1])
+    local x = torch.ones(params.batch_size):mul(predictions[i])
     print("x", x[1])
     local y = state_in.data[1] -- y doesn' tmatter for now
     local s = model.s[i - 1]
