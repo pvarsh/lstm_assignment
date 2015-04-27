@@ -34,7 +34,8 @@ if not opt then
    cmd:text()
    cmd:text()
    cmd:text('Options:')
-   cmd:option('-load', false, 'Load model filename')
+   cmd:option('-load', false, 'Load model')
+   cmd:option('-load_name', 'model.net', 'Model file name to load')
    cmd:option('-no_train', false, 'No train, play')
    cmd:text()
    opt = cmd:parse(arg or {})
@@ -258,7 +259,7 @@ end
 ------------------------------------------------------------------------
 
 -- function main()
-g_init_gpu(arg)
+g_init_gpu(1) -- was g_init_gpu(arg)
 
 if not opt.no_train then
   ----------------------- TRAINING -------------------------
