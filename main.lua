@@ -333,6 +333,7 @@ function query_sentences()
   local data_vec = torch.zeros(#data-1)
   predict_len = tonumber(data[1])
   for i=2,#data do
+    print('data[i]', data[i])
     if ptb.vocab_map[data[i]] == nil then
         data[i] = '<unk>'
     end
