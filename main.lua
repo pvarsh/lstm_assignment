@@ -322,7 +322,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
   print("Not training, just playing")
   if opt.load then
     print("Loading model...")
-    model = torch.load(opt.load)
+    model = torch.load(opt.load_name)
 
     ---- User input (TODO)
     input = "the president of"
