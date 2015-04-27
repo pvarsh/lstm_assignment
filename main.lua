@@ -238,26 +238,27 @@ function run_test()
   g_enable_dropout(model.rnns)
 end
 
--- function predict()
---   reset_state(state_in)
---   g_disable_dropout(model.rnns)
---   -- local perp = 0
+function predict()
+  reset_state(state_in)
+  g_disable_dropout(model.rnns)
+  -- local perp = 0
 
---   -- loop through input to set states
---   local len = state_in.data:size(1)
-
---   g_replace_table(model.s[0], model.start_s)
---   for i = 1, (len - 1) do
---     local x = state_test.data[i]
---     local y = state_test.data[i + 1]
---     local s = model.s[i - 1]
---     perp_tmp, model.s[1] = unpack(model.rnns[1]:forward({x, y, model.s[0]}))
---     perp = perp + perp_tmp[1]
---     g_replace_table(model.s[0], model.s[1])
---   end
---   print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
---   g_enable_dropout(model.rnns)
--- end
+  -- loop through input to set states
+  local len = state_in.data:size(1)
+  g_replace_table(model.s[0], model.start_s)
+  for i = 1, (len - 1) do
+    local x = state_test.data[i]
+    local y = state_test.data[1] -- y doesn't matter for now
+    local s = model.s[i - 1]
+    local pred
+    perp_tmp, model.s[i], pred = unpack(model.rnns[i]:forward({x, y, model.s[i-1]}))
+    print("pred:size()", pred:size())
+    -- perp = perp + perp_tmp[1]
+    g_replace_table(model.s[i-1], model.s[i])
+  end
+  -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
+  g_enable_dropout(model.rnns)
+end
 
 
 
@@ -359,7 +360,6 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
     state_in = {}
     state_in.data = data_vec
-    print(state_in.data)
 
     ---- Predict
 
