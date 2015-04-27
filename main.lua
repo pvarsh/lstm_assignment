@@ -365,7 +365,7 @@ function assignment_output()
     print("model.s[0]", model.s[0])
     -- Since we are not interested in error, we can forward prop without y
     perp, next_s, log_prob = model.rnns[1]:forward({x,
-                                                    x,
+                                                    x[1],
                                                     model.s[0]})
     g_enable_dropout(model.rnns)
 
