@@ -52,6 +52,7 @@ end
 
 --local state_train, state_valid, state_test
 model = {}
+print("Global model table id", model)
 --local paramx, paramdx
 
 function lstm(i, prev_c, prev_h)
@@ -94,9 +95,16 @@ function create_network()
   local pred             = nn.LogSoftMax()(h2y(dropped))
   local err              = nn.ClassNLLCriterion()({pred, y})
   local module           = nn.gModule({x, y, prev_s},
-                                      {err, nn.Identity()(next_s), pred})
+                                      {err, nn.Identity()(next_s), nn.Identity()(pred)})
   module:getParameters():uniform(-params.init_weight, params.init_weight)
   return transfer_data(module)
+end
+
+function load_model()
+  print("Loading model")
+  model = torch.load(params.model_load_fname)
+  -- model.rnns = g_cloneManyTimes(model.core_network, params.seq_length)
+  return model
 end
 
 function setup()
@@ -132,11 +140,6 @@ function setup()
   model.norm_dw = 0
   model.err = transfer_data(torch.zeros(params.seq_length))
 end
-
--- function load_model()
---   local l_model = torch.load(params.load_model_file)
---   model.core_network = l_model.core_network
--- end
 
 function reset_state(state)
   state.pos = 1
@@ -208,6 +211,10 @@ function run_valid()
   for i = 1, len do
     perp = perp + fp(state_valid)
   end
+  local multiple = 1
+  if params.vocab_size == 50 then
+    multiple = 5.6
+  end
   print("Validation set perplexity : " .. g_f3(torch.exp(perp / len)))
   g_enable_dropout(model.rnns)
 end
@@ -260,13 +267,21 @@ end
 
 
 function generate_sequence()
+  print("Model table id", model)
   reset_state(state1)
   g_disable_dropout(model.rnns)
   local perp = 0
   local len = 10
   g_replace_table(model.s[0], model.start_s)
-  predictions = transfer_data(torch.zeros(len))
+  local predictions = transfer_data(torch.zeros(len))
   local x = state1.data[1] -- first input
+
+  -- for i = 1,state1.data:size() do
+  --   local s = model.s[i - 1]
+  --   _, model.s[i], __ = unpack(
+  --                     model.rnns[i]:forward({x, y, s}))
+
+
   for i = 1, (len - 1) do
     print("Iteration ", i)
     -- local x = state1.data[i]
@@ -276,14 +291,14 @@ function generate_sequence()
                             model.rnns[i]:forward({x, y, s})
                             )
     -- perp = perp + perp_tmp[1]
-    -- g_replace_table(model.s[0], model.s[1])
+    g_replace_table(model.s[i-1], model.s[i])
     -- Compute predictions
     pred2 = pred1[{ 1,{} }]
     pred2:div(pred2:sum())
-    -- _, predictions[i+1] = pred2:max(1)
-    predictions[i+1] = torch.multinomial(pred2, 1)
+    _, predictions[i+1] = pred2:max(1)
+    -- predictions[i+1] = torch.multinomial(pred2, 1)
     x = torch.ones(20):mul(predictions[i+1])
-    print("predictions", x)
+    -- print("predictions", x)
   end
   -- print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
@@ -434,8 +449,10 @@ end
 function readline()
   local line = io.read("*line")
   if string.len(line) == 0 then
+    print("returning false")
     return false, line
   else
+    print("returning true")
     return true, line
   end
 end
@@ -472,14 +489,13 @@ if params.load_model then
   -- Build vocab
   ptb.traindataset(params.batch_size)
 
-  setup()
 
+  model = load_model()
+  print("Loaded model table id: ", model)
 
-  ok = true
+  print("Enter a word or a phrase")
+  local ok, line = readline()
   while ok do
-    print("Enter a word or a phrase")
-    local ok, line = readline()
-
     data = stringx.replace(line, '\n', '<eos>')
     data = stringx.split(data)
     x = torch.zeros(#data)
@@ -503,7 +519,11 @@ if params.load_model then
     for i=1,10 do
       print(ptb.vocab_inv_map[predictions[i]])
     end
+    print("Enter a word or a phrase")
+    ok, line = readline()
   end
+
+
 else
   main()
 end
