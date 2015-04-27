@@ -41,6 +41,7 @@ if not opt then
    cmd:option('-load', false, 'Load model')
    cmd:option('-load_name', 'model.net', 'Model file name to load')
    cmd:option('-no_train', false, 'No train, play')
+   cmd:option('-char', false, 'Character-level model')
    cmd:text()
    opt = cmd:parse(arg or {})
 end
@@ -73,8 +74,15 @@ local params = {batch_size=20,
                 vocab_size=10000,
                 max_epoch=4,
                 max_max_epoch=13,
-                max_grad_norm=5}
+                max_grad_norm=5,
+                char_mult = 1
+                }
 
+
+if opt.char then
+  params.vocab_size = 50
+  params.char_mult = 5.6
+end
 
 function transfer_data(x)
   return x:cuda()
@@ -217,7 +225,9 @@ function run_valid()
   for i = 1, len do
     perp = perp + fp(state_valid)
   end
-  print("Validation set perplexity : " .. g_f3(torch.exp(perp / len)))
+  print("Validation set perplexity : " .. g_f3(
+                        torch.exp(params.char_mult * perp / len)
+                        ))
   g_enable_dropout(model.rnns)
 end
 
@@ -235,7 +245,9 @@ function run_test()
     perp = perp + perp_tmp[1]
     g_replace_table(model.s[0], model.s[1])
   end
-  print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
+  print("Test set perplexity : " .. g_f3(
+                  torch.exp(params.char_mult * perp / (len - 1))
+                  ))
   g_enable_dropout(model.rnns)
 end
 

@@ -11,13 +11,14 @@ local file = require('pl.file')
 
 local ptb_path = "./data/"
 
-local trainfn = ptb_path .. "ptb.train.txt"
-local testfn  = ptb_path .. "ptb.test.txt"
-local validfn = ptb_path .. "ptb.valid.txt"
---[[
+-- Word datasets
+-- local trainfn = ptb_path .. "ptb.train.txt"
+-- local testfn  = ptb_path .. "ptb.test.txt"
+-- local validfn = ptb_path .. "ptb.valid.txt"
+
+-- Character datasets
 local trainfn = ptb_path .. "ptb.char.train.txt"
 local validfn = ptb_path .. "ptb.char.valid.txt"
---]]
 
 local vocab_idx = 0
 local vocab_map = {}
