@@ -350,6 +350,7 @@ end
 
 function assignment_output()
   print("OK GO")
+
   ok, line = readline()
   state_in = {}
   while ok do
@@ -449,6 +450,7 @@ if not opt.no_train then
 -- end -- end of main() 
 elseif opt.submission then
   ----------------------- SUBMISSION PREDICTIONS
+  ptb.traindataset(params.batch_size)
   assignment_output()
 
 else ----------------------- PREDICTIONS FROM USER INPUT
@@ -460,7 +462,6 @@ else ----------------------- PREDICTIONS FROM USER INPUT
   if opt.load then
     print("Loading model...")
     model = torch.load(opt.load_name)
-
     query_sentences()
   end
 end
