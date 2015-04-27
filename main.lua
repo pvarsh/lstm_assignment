@@ -323,6 +323,37 @@ function readline()
   end
 end
 
+
+function query_sentences()
+  -- Get and parse query
+  print("Query: len word1 word2 etc.")
+  local _, line = readline()
+  local data = stringx.replace(line, '\n', '<eos>')
+  local data = stringx.split(data)
+  local data_vec = torch.zeros(#data-1)
+  predict_len = tonumber(data[1])
+  for i=2,#data do
+    if ptb.vocab_map[data[i]] == nil then
+        data[i] = '<unk>'
+    end
+    data_vec[i-1] = ptb.vocab_map[data[i]]
+  end
+  data_vec = data_vec:
+             resize(data_vec:size(1), 1):
+             expand(data_vec:size(1), params.batch_size)
+  -- Create global state
+  state_in = {}
+  state_in.data = data_vec
+  -- Run generator
+  predictions = predict()
+  -- Translate results using inverse vocab map
+  pred_table = {}
+  for i=1,predict_len do
+    print(ptb.vocab_inv_map[predictions[i]])
+  end
+end
+
+
 ------------------------------------------------------------------------
 -- main()
 ------------------------------------------------------------------------
@@ -394,55 +425,56 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
   print("Not training, just playing")
   print("Reading training set to build vocab")
-  local state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+  ptb.traindataset(params.batch_size))
 
   if opt.load then
     print("Loading model...")
     model = torch.load(opt.load_name)
 
-    ---- User input (TODO)
-    print("Enter a word or a pharse")
-    local ok, line = readline()
-
-    -- local line = "the president of"
-    print("Line: ", line)
-
-    predict_len = params.seq_length
-
-    ---- Parse input
-    local data = stringx.replace(line, '\n', '<eos>')
-    local data = stringx.split(data)
-    print("data", data)
+    query_sentences()
     
-    local data_vec = torch.zeros(#data) --TODO: add option
-    for i=1,#data do
-      if ptb.vocab_map[data[i]] == nil then
-        data[i] = '<unk>'
-      end
-      data_vec[i] = ptb.vocab_map[data[i]]
-      -- data_vec = data_vec:resize(
-      --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
-      --           )
-      -- data_vec = transfer_data(data_vec)
-      -- print("Input data vec", data_vec)
-    end
+    -- ---- User input (TODO)
+    -- print("Enter a word or a pharse")
+    -- local ok, line = readline()
 
+    -- -- local line = "the president of"
+    -- print("Line: ", line)
 
-    data_vec = data_vec:resize(
-              data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
-              )
-    data_vec = transfer_data(data_vec)
-    -- print("resized data vec", data_vec)
-    state_in = {}
-    state_in.data = data_vec
+    -- predict_len = params.seq_length
 
-    ---- Predict
-    predictions = predict()
-    pred_table = {}
+    -- ---- Parse input
+    -- local data = stringx.replace(line, '\n', '<eos>')
+    -- local data = stringx.split(data)
+    -- print("data", data)
+    
+    -- local data_vec = torch.zeros(#data) --TODO: add option
+    -- for i=1,#data do
+    --   if ptb.vocab_map[data[i]] == nil then
+    --     data[i] = '<unk>'
+    --   end
+    --   data_vec[i] = ptb.vocab_map[data[i]]
+    --   -- data_vec = data_vec:resize(
+    --   --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
+    --   --           )
+    --   -- data_vec = transfer_data(data_vec)
+    --   -- print("Input data vec", data_vec)
+    -- end
 
-    for i=1,predict_len do -- TODO change 15 to param
-      print(ptb.vocab_inv_map[predictions[i]])
-    end
+    -- data_vec = data_vec:resize(
+    --           data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
+    --           )
+    -- data_vec = transfer_data(data_vec)
+    -- -- print("resized data vec", data_vec)
+    -- state_in = {}
+    -- state_in.data = data_vec
+
+    -- ---- Predict
+    -- predictions = predict()
+    -- pred_table = {}
+
+    -- for i=1,predict_len do -- TODO change 15 to param
+    --   print(ptb.vocab_inv_map[predictions[i]])
+    -- end
 
   end
 end
