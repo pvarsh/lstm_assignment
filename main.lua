@@ -370,14 +370,15 @@ function assignment_output()
                                                            model.s[0]}))
 
     g_enable_dropout(model.rnns)
-    print("log_prob", log_prob)
     -- Convert predictoins to probabilities and print
     prob_slice = log_prob[{ 1,{} }]:float()
     prob_slice:exp()
-    print('sum of probabilities', prob_slice:sum())
     prob_slice:div(prob_slice:sum())
-    print('sum of probabilities', prob_slice:sum())
-    print('probabilities', prob_slice)
+    out_string = ""
+    for i = 1,#prob_slice do
+      out_string = out_string .. prob_slice[i]
+    end
+    print(out_string)
 
     ok, line = readline()
   end
