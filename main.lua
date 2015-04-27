@@ -263,12 +263,11 @@ function predict()
     g_replace_table(model.s[i-1], model.s[i])
 
     -- Process prediction
-    local pred_slice = pred[{ 1,{} }]
-    pred_slice:div(pred_slice:sum()) -- normalize
-    -- pred_cpu = pred_slice:float()
+    local pred_slice = pred[{ 1,{} }]:float()
+    pred_slice:exp() -- (pred_slice:sum()) -- normalize
     -- print("pred_cpu sum", pred_cpu:sum())
     -- predictions[i+1] = torch.multinomial(pred_cpu, 1)
-    _, predictions[i+1] = pred_slice:min(1) -- max
+    _, predictions[i+1] = pred_slice:max(1) -- max
   end
 
   for i = len+1, predict_len-1 do
