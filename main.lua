@@ -257,6 +257,7 @@ function main()
    end
    if step % epoch_size == 0 then
      run_valid()
+     torch.save('model.net', model)
      if epoch > params.max_epoch then
          params.lr = params.lr / params.decay
      end
