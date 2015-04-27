@@ -330,7 +330,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
     ---- User input (TODO)
     local line = "the president of"
-    print("Input: ", input)
+    print("Line: ", line)
 
     predict_len = 15
 
@@ -339,6 +339,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     local data = stringx.split(data)
     
     local data_vec = torch.zeros(#data) --TODO: add option
+    print("data_vec", data_vec)
     for i=1,#data do
       print(data[i])
       if ptb.vocab_map[data[i]] == nil then
