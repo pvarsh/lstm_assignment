@@ -358,7 +358,9 @@ function assignment_output()
     print("type input: ", type(input))
     print("type torch.ones()", type(torch.ones(5)))
     print("torch.ones", torch.ones(5))
-    print("buggy line", torch.ones(params.batch_size):mul(input))
+    -- print("buggy line", torch.ones(params.batch_size):mul(input))
+    local x = torch.ones()
+    x:mul(input)
     state_in.data = transfer_data(x)
 
     -- Prepare model and get predictions
