@@ -341,7 +341,7 @@ function query_sentences()
   for i=1,predictions:size(1) do
     predict_output = predict_output .. ptb.vocab_inv_map[predictions[i]]
   end
-  print("predict_output")
+  print(predict_output)
 end
 
 
