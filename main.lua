@@ -404,7 +404,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     -- local line = "the president of"
     print("Line: ", line)
 
-    predict_len = 15
+    predict_len = 50
 
     ---- Parse input
     local data = stringx.replace(line, '\n', '<eos>')
