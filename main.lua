@@ -6,17 +6,7 @@
 ----  LICENSE file in the root directory of this source tree. 
 ----
 
-if not opt then
-   print '==> processing options'
-   cmd = torch.CmdLine()
-   cmd:text()
-   cmd:text()
-   cmd:text('Options:')
-   cmd:option('-load', false, 'Load model filename')
-   cmd:option('-no_train', false, 'No train, play')
-   cmd:text()
-   opt = cmd:parse(arg or {})
-end
+
 
 
 ok,cunn = pcall(require, 'fbcunn')
@@ -37,6 +27,18 @@ end
 require('nngraph')
 require('base')
 ptb = require('data')
+
+if not opt then
+   print '==> processing options'
+   cmd = torch.CmdLine()
+   cmd:text()
+   cmd:text()
+   cmd:text('Options:')
+   cmd:option('-load', false, 'Load model filename')
+   cmd:option('-no_train', false, 'No train, play')
+   cmd:text()
+   opt = cmd:parse(arg or {})
+end
 
 -- Train 1 day and gives 82 perplexity.
 --[[
