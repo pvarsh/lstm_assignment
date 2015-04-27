@@ -265,12 +265,10 @@ function predict()
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
-    pred_cpu = pred_slice:float()
-    print("pred_cpu", pred_cpu)
-    predictions[i+1] = torch.multinomial(pred_cpu, 1)
-
-    -- _, predictions[i+1] = pred_slice:max(1) -- max
-    -- predictions[i+1] = torch.multinomial(pred_slice, 1)  -- multinomial
+    -- pred_cpu = pred_slice:float()
+    -- print("pred_cpu sum", pred_cpu:sum())
+    -- predictions[i+1] = torch.multinomial(pred_cpu, 1)
+    _, predictions[i+1] = pred_slice:max(1) -- max
   end
 
 
