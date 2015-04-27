@@ -242,7 +242,10 @@ end
 --   reset_state(state_in)
 --   g_disable_dropout(model.rnns)
 --   -- local perp = 0
+
+--   -- loop through input to set states
 --   local len = state_in.data:size(1)
+
 --   g_replace_table(model.s[0], model.start_s)
 --   for i = 1, (len - 1) do
 --     local x = state_test.data[i]
@@ -343,16 +346,20 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     local data = stringx.split(data)
     
     local data_vec = torch.zeros(#data) --TODO: add option
-    print("data_vec", data_vec)
     for i=1,#data do
-      print(data[i])
       if ptb.vocab_map[data[i]] == nil then
         data[i] = '<unk>'
       end
       data_vec[i] = ptb.vocab_map[data[i]]
+      data_vec = data_vec:resize(
+                data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
+                )
+      data_vec = transfer_data(data_vec)
     end
 
     state_in = {}
+    state_in.data = data_vec
+    print(state_in.data)
 
     ---- Predict
 
