@@ -250,7 +250,7 @@ function predict()
   local len = state_in.data:size(1)
   g_replace_table(model.s[0], model.start_s)
   print("Starting input forward loop")
-  for i = 1, (len) do
+  for i = 1,len do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
@@ -267,11 +267,10 @@ function predict()
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]:float()
     pred_slice:exp() -- (pred_slice:sum()) -- normalize
-    print("Sum of pred probs", pred_slice:sum())
-    pred_index = torch.multinomial(pred_slice, 1)
+    local pred_index = torch.multinomial(pred_slice, 1)
     -- Fill predictions with data
     predictions[i] = state_in.data[{ i,1 }]
-    predictions[i+1] = pred_index --torch.multinomial(pred_slice, 1)
+    predictions[i+1] = pred_index
     -- _, predictions[i+1] = pred_slice:max(1) -- max
   end
   local x = state_in.data[len]
