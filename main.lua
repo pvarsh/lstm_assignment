@@ -425,14 +425,14 @@ else ----------------------- PREDICTIONS FROM USER INPUT
 
   print("Not training, just playing")
   print("Reading training set to build vocab")
-  ptb.traindataset(params.batch_size))
+  ptb.traindataset(params.batch_size)
 
   if opt.load then
     print("Loading model...")
     model = torch.load(opt.load_name)
 
     query_sentences()
-    
+
     -- ---- User input (TODO)
     -- print("Enter a word or a pharse")
     -- local ok, line = readline()
