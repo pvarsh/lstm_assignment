@@ -461,6 +461,8 @@ end
 if params.use_gpu then
   g_init_gpu({[1] = 1})
   print("Initialized gpu")
+else
+  print("Did not initialize gpu")
 end
 
 if params.load_model then
