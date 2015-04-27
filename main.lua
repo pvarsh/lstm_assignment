@@ -338,7 +338,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     local data = stringx.replace(line, '\n', '<eos>')
     local data = stringx.split(data)
     
-    local data_vec = torch.zeros(#data)) --TODO: add option
+    local data_vec = torch.zeros(#data) --TODO: add option
     for i=1,#data do
       print(data[i])
       if ptb.vocab_map[data[i]] == nil then
