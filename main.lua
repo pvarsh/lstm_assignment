@@ -254,7 +254,7 @@ function predict()
     local y = state_in.data[1] -- y doesn't matter for now
     local s = model.s[i - 1]
     local pred
-    print("x:size", z:size())
+    print("x:size", x:size())
     perp_tmp, model.s[i], pred = unpack(
                         model.rnns[i]:forward({x, y, s})
                         )
