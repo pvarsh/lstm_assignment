@@ -240,7 +240,7 @@ function run_test()
 end
 
 function predict()
-  reset_state(state_in)
+  -- reset_state(state_in)
   g_disable_dropout(model.rnns)
   -- local perp = 0
   local predictions = transfer_data(torch.zeros(predict_len))
@@ -260,7 +260,7 @@ function predict()
     -- state_in.pos = state_in.pos + 1
 
     -- perp = perp + perp_tmp[1]
-    g_replace_table(model.s[i-1], model.s[i])
+    -- g_replace_table(model.s[i-1], model.s[i])
 
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]:float()
@@ -280,7 +280,7 @@ function predict()
                         model.rnns[i]:forward({x, y, model.s[i-1]})
                         )
     -- state_in.pos = state_in.pos + 1
-    g_replace_table(model.s[i-1], model.s[i])
+    -- g_replace_table(model.s[i-1], model.s[i])
     local pred_slice = pred[{ 1,{} }]
     pred_slice:div(pred_slice:sum()) -- normalize
     -- pred_cpu = pred_slice:float()
