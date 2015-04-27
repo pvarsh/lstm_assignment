@@ -239,7 +239,7 @@ function run_test()
 end
 
 function predict()
-  -- reset_state(state_in)
+  reset_state(state_in)
   g_disable_dropout(model.rnns)
   -- local perp = 0
   local predictions = transfer_data(torch.zeros(predict_len))
@@ -247,7 +247,7 @@ function predict()
 
   -- loop through input to set states
   local len = state_in.data:size(1)
-  -- g_replace_table(model.s[0], model.start_s)
+  g_replace_table(model.s[0], model.start_s)
   for i = 1, (len) do
     local x = state_in.data[i]
     local y = state_in.data[1] -- y doesn't matter for now
@@ -259,7 +259,7 @@ function predict()
     -- state_in.pos = state_in.pos + 1
 
     -- perp = perp + perp_tmp[1]
-    -- g_replace_table(model.s[i-1], model.s[i])
+    g_replace_table(model.s[i-1], model.s[i])
 
     -- Process prediction
     local pred_slice = pred[{ 1,{} }]
