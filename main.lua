@@ -355,7 +355,7 @@ function assignment_output()
   while ok do
     -- Prepare input
     local input = ptb.vocab_map[line]
-    local x = torch.ones(params.batch_size):mul(input)
+    print("buggy line", torch.ones(params.batch_size):mul(input))
     state_in.data = transfer_data(x)
 
     -- Prepare model and get predictions
