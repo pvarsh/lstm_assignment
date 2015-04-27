@@ -406,6 +406,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
                 data_vec:size(1), 1):expand(data_vec:size(1), params.batch_size
                 )
       data_vec = transfer_data(data_vec)
+      print("Input data vec", data_vec)
     end
 
     state_in = {}
