@@ -313,7 +313,6 @@ function readline()
   end
 end
 
-
 function query_sentences()
   -- Get and parse query
   print("Query: len word1 word2 etc.")
@@ -338,10 +337,11 @@ function query_sentences()
   -- Run generator
   predictions = predict()
   -- Translate results using inverse vocab map
-  -- pred_table = {}
+  local predict_output = ''
   for i=1,predictions:size(1) do
-    print(ptb.vocab_inv_map[predictions[i]])
+    predict_output = predict_output .. ptb.vocab_inv_map[predictions[i]]
   end
+  print("predict_output")
 end
 
 
