@@ -365,9 +365,10 @@ function assignment_output()
     local x = state_in.data[1]
     local y = state_in.data[1]
     -- Since we are not interested in error, we can forward prop without y
-    perp, next_s, log_prob = model.rnns[1]:forward({x,
-                                                    y,
-                                                    model.s[0]})
+    perp, next_s, log_prob = unpack(model.rnns[1]:forward({x,
+                                                           y,
+                                                           model.s[0]}))
+
     g_enable_dropout(model.rnns)
     print("log_prob", log_prob)
     -- Convert predictoins to probabilities and print
