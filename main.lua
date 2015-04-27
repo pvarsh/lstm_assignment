@@ -315,8 +315,8 @@ g_init_gpu({1}) -- was g_init_gpu(arg)
 if not opt.no_train then
   ----------------------- TRAINING -------------------------
   state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-  state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
-  state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
+  state_valid = {data=transfer_data(ptb.validdataset(params.batch_size))}
+  state_test  = {data=transfer_data(ptb.testdataset(params.batch_size))}
   print("Network parameters:")
   print(params)
   local states = {state_train, state_valid, state_test}
@@ -411,7 +411,7 @@ else ----------------------- PREDICTIONS FROM USER INPUT
     predictions = predict()
     pred_table = {}
 
-    for i=1,predict_len do -- TODO change 15 to param
+    for i=#data+1,predict_len do -- TODO change 15 to param
       print(ptb.vocab_inv_map[predictions[i]])
     end
 
