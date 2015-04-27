@@ -365,7 +365,7 @@ if not opt.no_train then
      wps = torch.floor(total_cases / torch.toc(start_time))
      since_beginning = g_d(torch.toc(beginning_time) / 60)
      print('epoch = ' .. g_f3(epoch) ..
-           ', train perp. = ' .. g_f3(torch.exp(perps:mean())) ..
+           ', train perp. = ' .. g_f3(torch.exp(params.char_mult * perps:mean())) ..
            ', wps = ' .. wps ..
            ', dw:norm() = ' .. g_f3(model.norm_dw) ..
            ', lr = ' ..  g_f3(params.lr) ..
